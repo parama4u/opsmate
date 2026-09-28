@@ -1,0 +1,110 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_DB: orgchai
+      POSTGRES_USER: orgchai
+      POSTGRES_PASSWORD: orgchai
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orgchai -d orgchai"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    environment:
+      ENVIRONMENT: production
+      PORT: 5000
+      DATABASE_URL: postgresql://orgchai:orgchai@postgres:5432/orgchai
+      DIRECT_URL: postgresql://orgchai:orgchai@postgres:5432/orgchai
+      APP_API_KEY: local-dev-api-key
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
+      DOCS_DIR: /app/data/documents
+      KNOWLEDGE_META_DIR: /app/data/knowledge
+      CONNECTORS_DIR: /app/data/connectors
+      ACTIONS_DIR: /app/data/actions
+      DISCOVERY_DIR: /app/data/discovery
+      EVALUATION_DIR: /app/data/evaluation
+      RECAPS_DIR: /app/data/recaps
+      DIRECTORY_DIR: /app/data/directory
+      METRICS_DIR: /app/data/metrics
+      BACKUP_DIR: /app/data/backups
+      BACKUP_RETENTION_COUNT: 7
+      SCIM_BEARER_TOKEN: ${SCIM_BEARER_TOKEN:-}
+      FIREBASE_SSO_PROVIDER_ID: ${FIREBASE_SSO_PROVIDER_ID:-}
+      FIREBASE_SSO_PROVIDER_TYPE: ${FIREBASE_SSO_PROVIDER_TYPE:-oidc}
+      DLP_ACTION: flag
+      ACTION_ALLOWLIST: draft_follow_up,draft_incident_summary,draft_onboarding_plan,draft_it_access_request,draft_policy_acknowledgement,draft_support_reply
+      DATA_RESIDENCY: not-specified
+      MODEL_REGION: provider-default
+      SECRETS_ROTATION_DAYS: 90
+      DATA_AT_REST_ENCRYPTION: ${DATA_AT_REST_ENCRYPTION:-platform-managed}
+      MODEL_COST_PER_1K_TOKENS: ${MODEL_COST_PER_1K_TOKENS:-0}
+      PROMPT_VERSION: ${PROMPT_VERSION:-orgchai-v1}
+      APPROVED_CONNECTOR_KINDS: local_folder,google_drive,sharepoint,rest_api
+      SLACK_ALLOWED_CHANNELS: ${SLACK_ALLOWED_CHANNELS:-}
+      SLACK_DIGESTS_ENABLED: ${SLACK_DIGESTS_ENABLED:-false}
+    ports:
+      - "5000:5000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5000/api/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+    volumes:
+      - knowledge_data:/app/data/knowledge
+      - connector_data:/app/data/connectors
+      - documents_data:/app/data/documents
+      - actions_data:/app/data/actions
+      - discovery_data:/app/data/discovery
+      - evaluation_data:/app/data/evaluation
+      - recaps_data:/app/data/recaps
+      - directory_data:/app/data/directory
+      - metrics_data:/app/data/metrics
+      - backups_data:/app/data/backups
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ./web
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      API_BASE: http://api:5000
+      APP_API_KEY: local-dev-api-key
+      NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-https://orgchai.com}
+      NEXT_PUBLIC_SITE_NAME: OrgChai.com
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/').then((res) => { if (!res.ok) process.exit(1); }).catch(() => process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      start_period: 20s
+      retries: 3
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
+  knowledge_data:
+  connector_data:
+  documents_data:
+  actions_data:
+  discovery_data:
+  evaluation_data:
+  recaps_data:
+  directory_data:
+  metrics_data:
+  backups_data:

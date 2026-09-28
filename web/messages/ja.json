@@ -1,0 +1,451 @@
+{
+  "common": {
+    "appName": "OrgChai.com",
+    "dashboard": "チャット",
+    "profile": "プロフィール",
+    "signIn": "ログイン",
+    "signingIn": "ログインを開いています...",
+    "signInError": "ログインを完了できませんでした。Firebase の設定を確認して、もう一度お試しください。",
+    "signOut": "ログアウト",
+    "languageSwitcher": "言語",
+    "languageEnglish": "英語",
+    "languageJapanese": "日本語",
+    "loading": "読み込み中...",
+    "errorTitle": "エラーが発生しました",
+    "errorMessage": "予期しないエラーが発生しました。もう一度お試しください。",
+    "retry": "再試行",
+    "backToHome": "ホームに戻る",
+    "notFoundTitle": "ページが見つかりません",
+    "notFoundMessage": "お探しのページは存在しないか、移動されました。"
+  },
+  "landing": {
+    "navFeatures": "OrgChai について",
+    "navHowItWorks": "パイロット計画",
+    "navSecurity": "管理",
+    "eyebrow": "少人数の People Ops チーム向け",
+    "title": "同じ社員の質問に、二度答える仕事を終わらせる。",
+    "subtitle": "OrgChai は承認済みのハンドブック、オンボーディング、IT ガイドを、Slack と Web で使える出典付きの回答に変えます。大規模なエンタープライズ検索プロジェクトを始めずに、社員のセルフサービスを実現できます。",
+    "cta": "パイロットを始める",
+    "secondaryCta": "パイロット計画を見る",
+    "ctaNote": "対象企業: 従業員 50〜150 名、承認済み文書 20〜80 件、明確なコンテンツ担当者がいるチーム。",
+    "proofLabel": "パイロットの想定",
+    "proof1": "2 週間の初回展開を想定",
+    "proof2": "承認済み文書 20〜80 件から開始",
+    "proof3": "繰り返し発生する社内質問を測定",
+    "featuresEyebrow": "業務上のギャップ",
+    "featuresTitle": "問題は文書ではなく、そこへたどり着くまでの引き継ぎです。",
+    "featuresDescription": "社員が毎週同じ規程やオンボーディングの質問をすると、People Ops が検索エンジンになります。OrgChai は、明確で確認可能な回答経路を提供します。",
+    "feature1Title": "出典付きの回答",
+    "feature1Description": "回答前に承認済みの社内文書を検索し、社員がブラックボックスを信頼するのではなく、規程の出典を確認できるようにします。",
+    "feature2Title": "社員が普段使う場所で回答",
+    "feature2Description": "専用の Web ワークスペースと Slack から質問できます。どちらも同じ管理されたナレッジベースを使います。",
+    "feature3Title": "範囲を決めた運用モデル",
+    "feature3Description": "小さな承認済みソースと 1 人の担当者から始めます。エンタープライズ検索の展開を引き受けずに、役立つ回答レイヤーを追加できます。",
+    "problemEyebrow": "散在した回答にかかるコスト",
+    "problemTitle": "同じ質問が、いつも同じ人に届いている。",
+    "problemDescription": "よくある流れです。メッセージが届き、誰かが規程を探し、People Ops や IT の担当者がまた回答を書きます。",
+    "problem1Label": "People Ops",
+    "problem1Title": "すべての規程質問が引き継ぎになる。",
+    "problem1Description": "休暇、福利厚生、経費、リモートワークの質問が、本来もっと重要な仕事を担う担当者を中断します。",
+    "problem2Label": "オンボーディング",
+    "problem2Title": "新入社員は開始前から検索する。",
+    "problem2Description": "答えは存在していても、ハンドブック、チェックリスト、フォルダー、古いリンクに分散しています。",
+    "problem3Label": "IT と業務",
+    "problem3Title": "定型依頼が中断を生む。",
+    "problem3Description": "アクセス、設定、セキュリティの質問が、その時対応できる人のもとへ届きます。",
+    "workflowEyebrow": "2 週間のパイロット",
+    "workflowTitle": "すでに発生している質問で価値を検証します。",
+    "workflowDescription": "範囲を絞り、信頼できる文書を使い、減らしたい業務上の負担を測定します。最初から広げるのではなく、まず役立つ状態を作ります。",
+    "step1Title": "ソースを選ぶ",
+    "step1Description": "ハンドブック、福利厚生ガイド、オンボーディングチェックリスト、セキュリティガイド、主要な手順書など、承認済み文書 20〜80 件を用意します。",
+    "step2Title": "回答経路を開く",
+    "step2Description": "社員はファイル名を探したり同僚を中断したりせず、Web ワークスペースまたは Slack で自然な言葉で質問できます。",
+    "step3Title": "変化を確認する",
+    "step3Description": "繰り返し質問、出典の網羅性、文書の不足を確認します。インデックスする内容はコンテンツ担当者が管理します。",
+    "useCasesEyebrow": "頻度の高い質問から開始",
+    "useCasesTitle": "質問から回答へ移る。",
+    "useCasesDescription": "ワークフローを選び、繰り返される質問が出典付きの回答になる流れを確認できます。",
+    "motionHint": "ワークフローの切り替えを見るか、選んで詳しく確認できます。",
+    "motionNext": "次のワークフロー",
+    "useCase1Label": "People Ops",
+    "useCase1Title": "担当者への引き継ぎなしで規程に回答",
+    "useCase1Description": "休暇、福利厚生、経費、リモートワーク、職場規程について、People Ops にメッセージが届く前に明確な案内を提供します。",
+    "useCase1Question": "育児休業の規程を教えてください",
+    "useCase1Source": "休暇・時間外勤務ポリシー",
+    "useCase2Label": "オンボーディング",
+    "useCase2Title": "新入社員に確かな初週を提供",
+    "useCase2Description": "オンボーディングチェックリスト、チームのルール、アカウント設定手順を、新入社員がマネージャーを待たずに使える回答に変えます。",
+    "useCase2Question": "初出社日までに何を完了すればよいですか？",
+    "useCase2Source": "新入社員オンボーディングチェックリスト",
+    "useCase3Label": "定型 IT サポート",
+    "useCase3Title": "繰り返しのサポート依頼を減らす",
+    "useCase3Description": "定型的な設定、セキュリティ、トラブルシューティングの手順を、少人数の IT・業務チームに届く前に提示します。",
+    "useCase3Question": "不審なメールはどのように報告しますか？",
+    "useCase3Source": "IT セキュリティ・報告ガイド",
+    "fitEyebrow": "対象の見極め",
+    "fitTitle": "広い AI プロジェクトより、範囲を決めた初回展開を。",
+    "fitDescription": "OrgChai は、あらゆるナレッジ課題を一度に解決するのではなく、明確な業務上のきっかけに向けて設計されています。",
+    "fitGoodTitle": "相性がよいケース",
+    "fitGoodDescription": "従業員 50〜150 名、Slack を日常的に使い、ハンドブックやオンボーディングの質問が繰り返され、承認済み文書の担当者がいる場合。",
+    "fitNotYetTitle": "今は対象外のケース",
+    "fitNotYetDescription": "完全なエンタープライズ検索、多数のネイティブ連携、文書単位の細かな権限、業務システムを横断する自律アクションが必要な場合。",
+    "seoLink1": "社員セルフサービスソフトウェア",
+    "seoLink2": "HR ナレッジベース",
+    "seoLink3": "社員オンボーディングソフトウェア",
+    "seoLink4": "Slack 社員サポート",
+    "seoLink5": "社内 IT ヘルプデスク",
+    "seoWorkflow1": "社内ナレッジベースソフトウェア",
+    "seoWorkflow2": "社員ナレッジベース",
+    "seoWorkflow3": "ナレッジベース分析",
+    "securityEyebrow": "慎重な展開のための管理",
+    "securityTitle": "回答レイヤーを明確な境界の内側に保つ。",
+    "securityDescription": "最初のバージョンは、記録システムを置き換えるのではなく、信頼できる情報を使いやすくするためのものです。",
+    "securityNote": "クライアントのリクエストは Web サーバーを経由します。アプリケーション API キーがブラウザのバンドルに含まれることはありません。",
+    "security1Title": "認証済みアクセス",
+    "security1Description": "保護された API がユーザー固有のデータを返す前に、Firebase ID トークンを検証します。",
+    "security2Title": "ユーザー単位の履歴",
+    "security2Description": "チャット履歴はユーザー別に PostgreSQL へ保存し、パイロットのソースコレクションは組織の共有セットとして管理します。",
+    "security3Title": "管理者が管理するソース",
+    "security3Description": "設定済みの管理者が共有ナレッジベースへ追加・削除する文書を管理します。",
+    "finalEyebrow": "質問が実際にあるなら始められます",
+    "finalTitle": "最後に繰り返された 20 件の質問から、パイロットを始める。",
+    "finalDescription": "信頼できる文書を登録し、社員が質問できる明確な場所を用意し、繰り返し業務が減るかを確認します。",
+    "finalCta": "ワークスペースを開く",
+    "footerDescription": "少人数チームのための、出典付き社員セルフサービス。",
+    "preview": {
+      "online": "パイロット用ワークスペース",
+      "workspace": "ワークスペース",
+      "newChat": "質問する",
+      "hrGuide": "People ハンドブック",
+      "itGuide": "オンボーディングガイド",
+      "securityGuide": "IT セキュリティ",
+      "chatTitle": "People 規程",
+      "question": "未使用の休暇を翌年に繰り越せますか？",
+      "groundedAnswer": "根拠のある回答",
+      "answer": "年次休暇は最大 5 日まで繰り越せます。12 月 15 日までに HR ポータルから申請してください。規程の担当者は People Ops です。",
+      "sourceLabel": "出典:",
+      "source": "休暇・時間外勤務ポリシー",
+      "footer": "承認済みソース 1 件",
+      "match": "出典を確認済み"
+    }
+  },
+  "dashboard": {
+    "signInRequired": "OrgChai を使うにはログインしてください",
+    "signInHint": "組織で設定されたログインを使うと API にアカウントが同期されます。",
+    "nav": {
+      "dashboard": "チャット",
+      "settings": "設定",
+      "admin": "管理"
+    }
+  },
+  "chat": {
+    "newChat": "新しいチャット",
+    "workspaceLabel": "ワークスペース",
+    "knowledgeBase": "ナレッジベース",
+    "indexedSources": "{count, plural, =0 {登録済みソースなし} other {# 件のソースを登録}}",
+    "chats": "チャット",
+    "documents": "ドキュメント",
+    "search": "検索",
+    "people": "担当者",
+    "workflows": "ワークフロー",
+    "recaps": "要約",
+    "searchPlaceholder": "出典を検索",
+    "runSearch": "検索",
+    "savedSearchName": "保存する検索名",
+    "saveSearch": "保存",
+    "savedSearches": "保存済み検索",
+    "noSearchResults": "一致する出典はありません。",
+    "peoplePlaceholder": "担当者や専門家を検索",
+    "findPeople": "担当者を検索",
+    "noPeople": "一致する担当者はいません。",
+    "chooseWorkflow": "ワークフローを選択",
+    "createWorkflowProposal": "提案を作成",
+    "recapsHint": "許可された Slack チャンネルまたはスレッドを要約します。OrgChai はメッセージを投稿・変更しません。",
+    "slackChannelId": "Slack チャンネル ID",
+    "slackThreadTs": "スレッドのタイムスタンプ（任意）",
+    "slackDestination": "送信先チャンネル（スケジュール時のみ）",
+    "scheduleOnDemand": "オンデマンド",
+    "scheduleHourly": "毎時",
+    "scheduleDaily": "毎日",
+    "createRecap": "要約を作成",
+    "saveDigest": "ダイジェストを保存",
+    "savedDigests": "保存済みダイジェスト",
+    "runDigest": "ダイジェストを実行",
+    "openSlackSource": "Slack の出典を開く",
+    "recapUnavailable": "Slack の要約を利用できません。",
+    "slackNotReady": "Slack は準備未完了です。不足しているスコープ",
+    "slackUnavailable": "Slack の状態を取得できません",
+    "sourceSystemFilter": "出典システム",
+    "ownerFilter": "所有者",
+    "departmentFilter": "部署",
+    "collectionFilter": "コレクション",
+    "allCollections": "すべてのコレクション",
+    "statusFilter": "状態",
+    "topicFilter": "トピック",
+    "effectiveFrom": "適用開始日",
+    "effectiveTo": "適用終了日",
+    "noChats": "チャットはまだありません。",
+    "noDocs": "インデックスされた文書はありません。",
+    "startHere": "ここから始める",
+    "emptyTitle": "OrgChai",
+    "emptyHint": "社内ナレッジの Q&A です。質問して会話を始めてください。",
+    "placeholder": "規程、IT、福利厚生について聞く...",
+    "footer": "OrgChai はインデックス済みの社内文書から回答します。",
+    "openSource": "出典を開く",
+    "previewSource": "プレビュー",
+    "loadingSource": "読み込み中",
+    "sourcePreview": "出典プレビュー",
+    "sourcePreviewUnavailable": "この出典のプレビューは利用できません。",
+    "sourceStatus": "出典の状態は未設定",
+    "helpful": "役に立った",
+    "notHelpful": "役に立たなかった",
+    "incorrect": "誤りを報告",
+    "missingSource": "出典がない",
+    "reportConcern": "問題を報告",
+    "proposeAction": "フォローアップを提案",
+    "responseMode": "回答モード",
+    "answerLanguage": "回答言語",
+    "languageDefault": "ユーザーの言語",
+    "languageEnglish": "英語",
+    "languageJapanese": "日本語",
+    "contextSource": "コンテキスト出典",
+    "browserContext": "ブラウザーのコンテキスト",
+    "noContextSource": "出典を指定しない",
+    "modeAnswer": "回答",
+    "modeCompare": "比較",
+    "modeSummarize": "要約",
+    "modeChecklist": "チェックリスト",
+    "modeResearch": "調査",
+    "sources": "出典:",
+    "ownerLabel": "担当者",
+    "smeLabel": "専門家",
+    "reviewedLabel": "確認日",
+    "expiresLabel": "有効期限",
+    "provenanceLabel": "出典情報",
+    "stepsLabel": "手順",
+    "relatedSourcesLabel": "関連する出典",
+    "chooseFile": "出典ファイルを選択",
+    "q1": "有給は何日ありますか？",
+    "q2": "ステージング DB のリセット方法は？",
+    "q3": "401k のマッチは？",
+    "q4": "フィッシングメールの報告方法は？"
+  },
+  "settings": {
+    "title": "設定",
+    "subtitle": "ログイン中のアカウント。",
+    "displayName": "表示名",
+    "email": "メール",
+    "admin": "管理者",
+    "deleteChatsTitle": "チャット履歴を削除",
+    "deleteChatsDescription": "すべてのチャットとメッセージを完全に削除します。確認のため DELETE と入力してください。",
+    "deleteChatsConfirmation": "DELETE と入力",
+    "deleteChatsButton": "すべてのチャットを削除",
+    "deleteChatsComplete": "{count} 件のチャットを削除しました。"
+    ,"exportTitle": "自分のデータをエクスポート"
+    ,"exportDescription": "チャット、フィードバック、保存済み検索、アクション提案を JSON ファイルでダウンロードします。"
+    ,"exportButton": "データをエクスポート"
+    ,"deleteDataTitle": "個人データをすべて削除"
+    ,"deleteDataDescription": "チャット、フィードバック、保存済み検索、レビュー、アクション提案を削除します。確認のため DELETE MY DATA と入力してください。"
+    ,"deleteDataConfirmation": "DELETE MY DATA と入力"
+    ,"deleteDataButton": "自分のデータを削除"
+    ,"deleteDataComplete": "個人データを削除しました。"
+  },
+  "admin": {
+    "title": "管理",
+    "subtitle": "共有ナレッジベース。",
+    "forbidden": "管理者権限がありません。API の ADMIN_EMAILS を設定してください。",
+    "chunks": "チャンク数",
+    "docs": "ドキュメント",
+    "db": "データベース",
+    "qualityTitle": "回答品質",
+    "feedback": "受け取ったフィードバック",
+    "openReviews": "未処理のレビュー",
+    "reviewedItems": "レビュー項目",
+    "activeUsers": "アクティブユーザー",
+    "questions": "質問数",
+    "sourceClicks": "出典クリック数",
+    "feedbackRate": "フィードバック率",
+    "p95Latency": "P95 レイテンシー",
+    "estimatedCost": "推定モデルコスト",
+    "approvalRate": "アクション承認率",
+    "humanHandoffs": "人による確認待ち",
+    "noResultQueries": "結果なしの質問",
+    "staleSources": "古い出典",
+    "unknownQuestion": "質問を取得できません",
+    "startReview": "レビュー開始",
+    "resolve": "解決済みにする",
+    "dismiss": "却下",
+    "noReviews": "対応が必要なレビューはありません。",
+    "owner": "担当者",
+    "subjectMatterExpert": "担当分野の専門家",
+    "allowedEmails": "許可するメール、カンマ区切り",
+    "allowedDomains": "許可するドメイン、カンマ区切り",
+    "allowedGroups": "許可するディレクトリグループ、カンマ区切り",
+    "sourceSystem": "出典システム",
+    "topic": "トピック",
+    "department": "部署",
+    "duplicateOf": "重複元",
+    "metadataTitle": "タイトル",
+    "sourceUrl": "正式な出典 URL",
+    "saveMetadata": "メタデータを保存"
+    ,"policyTitle": "データ取り扱いポリシー"
+    ,"modelProvider": "回答プロバイダー"
+    ,"noTraining": "学習利用の声明"
+    ,"providerRetention": "プロバイダーの保持期間"
+    ,"chatRetention": "チャット保持期間（日）"
+    ,"dlpTitle": "機密データの取り扱い"
+    ,"dlpDescription": "今後の取り込みで検出した個人情報や認証情報を、記録、マスキング、またはブロックするか選択します。"
+    ,"saveDlp": "DLP ポリシーを保存"
+    ,"dlpSaved": "DLP ポリシーを保存しました"
+    ,"dataClassification": "データ分類"
+    ,"retentionConfigTitle": "保持と削除の設定"
+    ,"retentionDescription": "0 は管理者がポリシーを変更するまで保持する設定です。チャットの保持期間にはプロンプトと回答が含まれます。"
+    ,"chatPromptAnswer": "チャット、プロンプト、回答（日）"
+    ,"sourceCopies": "ソースコピー（日）"
+    ,"embeddings": "埋め込み（日）"
+    ,"auditEvents": "監査イベント（日）"
+    ,"metrics": "利用メトリクス（日）"
+    ,"feedbackRetention": "フィードバックとレビュー（日）"
+    ,"saveRetention": "保持ポリシーを保存"
+    ,"applyRetentionDescription": "今すぐ適用すると、設定期間を超えたレコードを完全に削除します。"
+    ,"applyRetentionConfirmation": "APPLY RETENTION と入力"
+    ,"applyRetention": "保持を今すぐ適用"
+    ,"retentionSaved": "保持ポリシーを保存しました"
+    ,"retentionApplied": "保持クリーンアップ完了、削除件数"
+    ,"sourcePermissions": "出典の権限"
+    ,"organizationBoundary": "組織境界"
+    ,"mcpTitle": "読み取り専用ツールインターフェース"
+    ,"mcpDescription": "権限で絞り込んだ検索とソースプレビューを、監査対象の JSON-RPC インターフェースで提供します。"
+    ,"readOnly": "読み取り専用"
+    ,"mcpCheck": "読み取り専用検索を確認"
+    ,"mcpCheckPassed": "ツール呼び出しに成功しました"
+    ,"mcpCheckFailed": "ツール呼び出しに失敗しました"
+    ,"dlpAction": "DLP の動作"
+    ,"dataResidency": "データ保存地域"
+    ,"regionalProcessing": "リージョン処理"
+    ,"secretsRotation": "シークレットのローテーション"
+    ,"encryptionAtRest": "保存時の暗号化"
+    ,"dataExport": "データエクスポート"
+    ,"deletionConfirmation": "削除確認"
+    ,"identityProvider": "認証プロバイダー"
+    ,"scimProvisioning": "SCIM プロビジョニング"
+    ,"configured": "設定済み"
+    ,"approvedConnectors": "承認済みコネクター"
+    ,"actionAllowlist": "アクション許可リスト"
+    ,"adminPolicyTitle": "アクセスとアクションのポリシー"
+    ,"adminPolicyDescription": "承認済みコネクター、モデル、Web アクセス、データ分類、ツール、アクション範囲を管理します。"
+    ,"policyConnectorKinds": "承認済みコネクター種別"
+    ,"policyModels": "承認済みモデル名"
+    ,"policyDataClasses": "許可するデータ分類"
+    ,"policyTools": "許可するツール"
+    ,"policyActions": "アクション範囲"
+    ,"webAccess": "Web アクセス"
+    ,"webAccessDisabled": "無効"
+    ,"webAccessApprovedOnly": "承認済みソースのみ"
+    ,"webAccessEnabled": "有効"
+    ,"saveAdminPolicy": "アクセス・ポリシーを保存"
+    ,"adminPolicySaved": "アクセス・ポリシーを保存しました"
+    ,"notConfigured": "未設定"
+    ,"backupsTitle": "データベースバックアップ"
+    ,"backupsHint": "永続ボリューム上に検証済みの PostgreSQL アーカイブを作成します。"
+    ,"backupsConfigured": "バックアップツール設定済み"
+    ,"backupsUnavailable": "バックアップツールを利用できません"
+    ,"backupRetention": "保持数"
+    ,"createBackup": "検証済みバックアップを作成"
+    ,"lastBackup": "最終検証済みバックアップ"
+    ,"backupFailed": "バックアップを作成できませんでした。"
+    ,"connectorTitle": "コネクター"
+    ,"directoryTitle": "ディレクトリ ID"
+    ,"directoryHint": "ディレクトリのユーザー、グループ、ロールを出典権限にマッピングします。SCIM プロビジョニングにはサーバー側のトークンを使用します。"
+    ,"externalId": "外部 ID"
+    ,"directoryEmail": "ディレクトリのメール"
+    ,"directoryName": "表示名"
+    ,"directoryGroups": "グループ、カンマ区切り"
+    ,"directoryRoles": "ロール、カンマ区切り"
+    ,"saveDirectoryUser": "ID を保存"
+    ,"removeDirectoryUser": "ID を削除"
+    ,"noGroups": "グループなし"
+    ,"connectorHint": "管理対象のローカルフォルダー、Google Drive、SharePoint、または読み取り専用 JSON API を出典コレクションとして同期します。"
+    ,"connectorContract": "コネクター契約"
+    ,"metadataFields": "メタデータ項目"
+    ,"identityMappingSupported": "ID マッピング対応"
+    ,"identityMappingUnavailable": "ID マッピング未対応"
+    ,"lastSuccess": "最終成功クロール"
+    ,"quarantined": "隔離済み"
+    ,"freshnessTarget": "鮮度の目標"
+    ,"manual": "手動"
+    ,"connectorName": "コネクター名"
+    ,"localFolder": "ローカルフォルダー"
+    ,"googleDrive": "Google Drive"
+    ,"sharepoint": "SharePoint"
+    ,"restApi": "読み取り専用 JSON API"
+    ,"endpointUrl": "HTTPS エンドポイント URL"
+    ,"integrationCategory": "連携カテゴリ"
+    ,"ticketing": "チケット管理"
+    ,"hr": "HR"
+    ,"projectTracking": "プロジェクト管理"
+    ,"calendar": "カレンダー"
+    ,"directory": "ディレクトリ"
+    ,"tokenEnv": "サーバー側トークンの環境変数名"
+    ,"scopeId": "フォルダーまたはサイト ID"
+    ,"driveId": "ドライブ ID"
+    ,"rootPath": "フォルダーのパス"
+    ,"schedule": "スケジュール名"
+    ,"retryLimit": "再試行回数"
+    ,"retryBackoffSeconds": "再試行の待機秒数"
+    ,"webhookSecretEnv": "Webhook シークレットの環境変数名"
+    ,"addConnector": "コネクターを追加"
+    ,"indexed": "件をインデックス"
+    ,"syncNow": "今すぐ同期"
+    ,"pause": "停止"
+    ,"resume": "再開"
+    ,"failures": "回の失敗"
+    ,"retryPolicy": "再試行上限"
+    ,"retryCount": "使用した再試行"
+    ,"saveRetryPolicy": "再試行ポリシーを保存"
+    ,"stale": "件の古い出典"
+    ,"noConnectors": "設定されたコネクターはありません。"
+    ,"auditTitle": "監査ログ"
+    ,"exportAudit": "監査ログをエクスポート"
+    ,"exportAnalytics": "分析をエクスポート"
+    ,"exportSuccess": "エクスポートをダウンロードしました"
+    ,"exportError": "エクスポートに失敗しました"
+    ,"systemActor": "システム"
+    ,"noAudit": "監査イベントはありません。"
+    ,"actionTitle": "アクション提案"
+    ,"actionHint": "提案は下書きのみです。承認しても外部への書き込みは実行されません。"
+    ,"approve": "承認"
+    ,"reject": "却下"
+    ,"noActions": "アクション提案はありません。"
+    ,"proposalInputs": "入力"
+    ,"proposalSources": "出典"
+    ,"proposalEffects": "想定される副作用"
+    ,"none": "なし"
+    ,"discoveryTitle": "検索・発見の設定"
+    ,"discoveryHint": "信頼する出典をまとめ、検索で展開する組織用語を登録します。"
+    ,"collectionName": "コレクション名"
+    ,"collectionDescription": "説明"
+    ,"collectionSources": "出典名、カンマ区切り"
+    ,"boost": "ブースト"
+    ,"authoritative": "正式な出典"
+    ,"addCollection": "コレクションを追加"
+    ,"sourcesCount": "件の出典"
+    ,"glossaryTerm": "用語"
+    ,"glossarySynonyms": "同義語、カンマ区切り"
+    ,"glossaryDefinition": "定義"
+    ,"saveGlossary": "用語を保存"
+    ,"evaluationTitle": "評価ワークスペース"
+    ,"evaluationHint": "正解質問と期待する出典を登録し、検索ヒット率と逆順位を測定します。"
+    ,"evaluationCaseTitle": "ケース名"
+    ,"evaluationQuestion": "正解質問"
+    ,"evaluationSources": "期待する出典、カンマ区切り"
+    ,"evaluationLanguage": "評価言語"
+    ,"languageDefault": "既定"
+    ,"languageEnglish": "英語"
+    ,"languageJapanese": "日本語"
+    ,"addEvaluation": "ケースを追加"
+    ,"evaluationCases": "ケース数"
+    ,"runEvaluation": "評価を実行"
+    ,"hitRate": "ヒット率"
+  }
+}

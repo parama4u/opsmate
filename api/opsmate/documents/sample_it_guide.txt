@@ -1,0 +1,17 @@
+# ACME Corp IT Guide
+
+## Resetting Your Staging Database
+
+To reset the staging database, connect to the staging VPN first using the company VPN client. Then run the reset script located at /opt/scripts/reset_staging.sh. The script will prompt for confirmation before dropping and recreating the test database. Never run this script against the production database. The full procedure takes about 5 minutes.
+
+## Password Reset
+
+If you forget your corporate password, go to https://reset.acme.corp and enter your employee ID. A reset link will be sent to your personal email on file. Passwords must be at least 12 characters and include a number and a symbol. Passwords expire every 90 days.
+
+## Accessing the Code Repository
+
+All source code is stored in GitHub under the acme-corp organization. Request access by opening a ticket in the IT support portal. Your manager must approve the request. Two-factor authentication is required for all repository access.
+
+## Reporting a Bug
+
+To report a bug, open an issue in the relevant GitHub repository using the bug report template. Include reproduction steps, expected behavior, and screenshots. Tag the issue with the appropriate team label. Critical bugs affecting production should also be reported in the #incident-response Slack channel.

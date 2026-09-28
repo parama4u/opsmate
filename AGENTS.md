@@ -1,0 +1,167 @@
+# OpsMate Agent Rules
+
+## Overview
+
+Monorepo with two apps:
+
+- **web/** - Next.js, shadcn/ui, Firebase Auth, next-intl (en/ja)
+- **api/** - FastAPI + Prisma migrations + pgvector RAG, Slack bot
+
+## Architecture
+
+### Web (`web/`)
+- App Router under `web/src/app/`
+- Firebase config served via `/api/firebase-config` - never expose keys in client bundle
+- Backend calls via `/api/proxy/*` (server injects `APP_API_KEY` - never use `NEXT_PUBLIC_*` for secrets)
+- shadcn components in `web/src/components/ui/`
+- SEO: `sitemap.ts`, `robots.ts`, `lib/seo.ts`
+- Server components by default; `'use client'` only when needed
+- Auth: Firebase client-side; user credentials never sent to backend for auth
+
+### API (`api/`)
+- FastAPI app in `api/opsmate/main.py`
+- Prisma schema in `api/prisma/schema.prisma` is the source of truth for Postgres tables
+- Runtime queries use psycopg2, including pgvector cosine search
+- API key auth via `X-API-Key` header (`APP_API_KEY`)
+- Firebase ID tokens on protected routes
+- Never expose sensitive data in API responses or error messages
+
+---
+
+## Anti-slop defaults (always)
+
+Reduce generic AI output by default in copy, UI, and commits:
+
+- **No em dashes** - use commas, periods, colons, or parentheses instead of `—` / `–`
+- **No emojis** - not in UI copy, Slack messages, comments, commits, logs, or docs unless the user explicitly asks
+- **No rounded corners** - avoid `rounded-*` Tailwind classes and pill/chip shapes unless an existing design system component already requires them
+- Prefer plain, specific language over marketing filler, hype adjectives, or stock assistant tone
+- Prefer sharp, simple layouts over decorative gradients, glow effects, and badge/pill clusters
+
+Also enforced via `.cursor/rules/no-ai-slop.mdc` (`alwaysApply: true`).
+
+---
+
+## CRITICAL - DO NOT (unless user explicitly asks)
+
+### Terminal, builds, and dev servers
+
+- **NEVER run applications from the agent terminal** - user runs locally in their IDE or external terminal
+- **DO NOT** run: `npm run dev`, `npm start`, `next dev`, `uvicorn`, `nodemon`, etc.
+- **DO NOT** run: `npm run build`, `next build`, `tsc`, or any compilation commands
+- **DO NOT** run: `npm install` / `yarn install` / `pip install` unless explicitly requested
+- **DO NOT** execute test commands (`jest`, `playwright`, `pytest`, etc.) unless specifically requested
+- **DO NOT** start, stop, or restart development servers
+- **DO NOT** run deployment commands unless explicitly requested
+- If validation is needed, **suggest the exact command** for the user to run - do not execute automatically
+
+### Database and Prisma
+
+- **DO NOT** modify `api/prisma/schema.prisma` unless the user explicitly asks
+- **DO NOT** run any Prisma CLI commands unless explicitly asked:
+  - `prisma migrate dev` / `prisma migrate deploy`
+  - `prisma db push` / `prisma db pull`
+  - `prisma generate`
+  - `prisma studio` / `prisma format`
+- **DO NOT** create files in `api/prisma/migrations/` unless the user explicitly asks
+- **DO NOT** run database seed scripts unless explicitly asked
+- When schema changes are needed and user approves: suggest changes only, or use `prisma migrate dev` (preferred over `db push`)
+- Never use `prisma db push` in production workflows - it bypasses migration history
+
+### Git
+
+- **DO NOT** commit changes unless explicitly asked
+- **DO NOT** push to remote unless explicitly asked
+- **DO NOT** create branches unless explicitly asked
+- **DO NOT** amend commits unless explicitly asked and safe
+- **DO NOT** run destructive git commands (`reset --hard`, `push --force`, etc.) unless explicitly asked
+- **DO NOT** create git hooks or git automation unless requested
+- **DO NOT** update git config
+
+### Documentation files
+
+- **DO NOT** create or modify `.md` files (README, ARCHITECTURE, setup guides, etc.) unless explicitly requested
+- **DO NOT** create markdown documentation as part of completing a code task
+- **DO NOT** add verbose docstrings or documentation comments unless specifically asked
+- Prefer inline code comments for non-obvious logic only
+- Exception: updating `.env.example` when adding env vars is expected (not full docs)
+
+### Environment and secrets
+
+- **DO NOT** create or modify `.env`, `.env.local`, `.env.prod`, or other secret files
+- **DO NOT** commit `.env` files or hardcode API keys, tokens, or credentials
+- Reference env vars in code; user manages actual values
+- When adding a new env var, update the matching `.env.example` (and document its purpose there)
+- Never expose sensitive data in client bundles, logs, or error responses
+
+### Dependencies and package.json
+
+- **DO NOT** add new npm or pip dependencies unless necessary for the task
+- **DO NOT** add scripts to `package.json` unless explicitly requested
+- **NEVER** manually add Radix UI packages for shadcn - use `npx shadcn@latest add [component]`
+- **NEVER** manually create shadcn/ui component files - use the shadcn CLI
+- **DO NOT** run `npm audit fix --force` or mass dependency upgrades unless asked
+
+### Scope and file creation
+
+- **DO NOT** create test files unless explicitly requested
+- **DO NOT** create unrelated files, helpers, or abstractions beyond what the task requires
+- Be conservative about new files - prefer modifying existing ones
+- Minimize diff scope; do not refactor unrelated code
+- Do not over-engineer (no premature abstractions, excessive error handling for impossible cases)
+
+### shadcn/ui (web)
+
+- **ALWAYS** add components via: `cd web && npx shadcn@latest add [component-name]`
+- **NEVER** hand-copy shadcn components or manually install Radix primitives
+
+---
+
+## Code standards
+
+### TypeScript
+- TypeScript everywhere - no `any`; use `unknown` or proper interfaces
+- Do not ignore TypeScript errors - fix them
+- Define interfaces for props, API payloads, and service return types
+
+### Error handling
+- API: return `{ success, error }`; never leak stack traces or internals in production
+- Web: handle loading and error states; do not skip try/catch on async operations
+- Error messages must not expose secrets, tokens, or internal paths
+
+### Security
+- Validate all user inputs
+- Firebase Auth on client; verify tokens server-side where required
+- Never send user passwords to the backend API for authentication
+- Configure CORS and rate limiting for production APIs
+
+### Naming and organization
+- React components: PascalCase (`Button.tsx`)
+- Services/utilities/hooks: camelCase (`auth.py`, `useAuth.ts`)
+- API routes: kebab-case or REST resource names
+- Web imports: `@/` alias
+
+---
+
+## Common mistakes to avoid
+
+1. Running apps or builds from the agent terminal
+2. Committing secrets or modifying `.env` files
+3. Creating README or other `.md` files unprompted
+4. Running Prisma commands or changing schema without explicit ask
+5. Using `any` or ignoring TypeScript errors
+6. Manually adding shadcn/Radix components instead of using the CLI
+7. Hardcoding URLs, API keys, or environment-specific values
+8. Scope creep - changing unrelated files during a focused task
+9. Auto-committing, auto-pushing, or creating branches without ask
+10. Shipping em dashes, emojis, or rounded-corner UI by default
+
+---
+
+## Forking checklist (for user, not agent)
+
+1. Copy repo, rename app display names
+2. Set Firebase project + env files (`api/.env`, `web/.env.local`)
+3. Run `npx prisma migrate dev` in api (user runs this)
+4. Start FastAPI: `cd api && uvicorn opsmate.main:app --reload --port 5000`
+5. Start web: `cd web && npm run dev`

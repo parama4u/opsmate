@@ -1,0 +1,30 @@
+---
+description: Default anti-slop constraints for copy and UI (no em dash, emoji, or rounded corners)
+alwaysApply: true
+---
+
+# No AI slop defaults
+
+Apply these unless the user explicitly asks otherwise.
+
+## Copy and communication
+
+- Never use em dashes (`—`) or en dashes (`–`). Use commas, periods, colons, or parentheses.
+- Never use emojis in UI strings, Slack payloads, comments, commits, logs, or docs.
+- Prefer plain, specific wording. Avoid hype, filler, and stock assistant phrasing.
+
+## UI
+
+- Do not add rounded corners: no new `rounded-*` Tailwind classes, no `borderRadius` / `borderTopLeftRadius` etc. in React Native StyleSheets, no pill chips.
+- Exception: leave existing third-party/shadcn primitives alone unless the task is to restyle them; do not introduce extra rounding on top.
+- Avoid decorative glow, purple gradients, badge clusters, and other generic AI visual defaults.
+
+## Examples
+
+```tsx
+// BAD
+<p className="rounded-xl">Welcome. We are glad you are here 🎉</p>
+
+// GOOD
+<p>Welcome. We are glad you are here.</p>
+```

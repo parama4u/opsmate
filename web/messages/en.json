@@ -1,0 +1,451 @@
+{
+  "common": {
+    "appName": "OrgChai.com",
+    "dashboard": "Chat",
+    "profile": "Profile",
+    "signIn": "Sign in",
+    "signingIn": "Opening sign-in...",
+    "signInError": "Sign-in could not be completed. Check your Firebase configuration and try again.",
+    "signOut": "Sign out",
+    "languageSwitcher": "Language",
+    "languageEnglish": "English",
+    "languageJapanese": "Japanese",
+    "loading": "Loading...",
+    "errorTitle": "Something went wrong",
+    "errorMessage": "An unexpected error occurred. Please try again.",
+    "retry": "Try again",
+    "backToHome": "Back to home",
+    "notFoundTitle": "Page not found",
+    "notFoundMessage": "The page you are looking for does not exist or was moved."
+  },
+  "landing": {
+    "navFeatures": "Why OrgChai",
+    "navHowItWorks": "Pilot plan",
+    "navSecurity": "Controls",
+    "eyebrow": "For lean People Ops teams",
+    "title": "Stop answering the same employee question twice.",
+    "subtitle": "OrgChai turns your approved handbook, onboarding, and IT guides into source-backed answers in Slack and on the web. Give employees self-service without starting an enterprise search project.",
+    "cta": "Start your pilot",
+    "secondaryCta": "See the pilot plan",
+    "ctaNote": "Best fit: 50 to 150 employees, 20 to 80 approved documents, and one clear content owner.",
+    "proofLabel": "Pilot profile",
+    "proof1": "Built for a two-week first rollout",
+    "proof2": "Starts with 20 to 80 approved documents",
+    "proof3": "Measures fewer repeated internal questions",
+    "featuresEyebrow": "The operational gap",
+    "featuresTitle": "Your documents are not the problem. The handoff is.",
+    "featuresDescription": "When employees ask the same policy and onboarding questions every week, People Ops becomes the search engine. OrgChai gives them a clear, verifiable answer path.",
+    "feature1Title": "Source-backed answers",
+    "feature1Description": "Search approved company documents before answering, then show the source so employees can verify the policy instead of trusting a black box.",
+    "feature2Title": "Where employees already ask",
+    "feature2Description": "Give employees a focused web workspace and Slack access. Both use the same controlled knowledge base for consistent answers.",
+    "feature3Title": "A bounded operating model",
+    "feature3Description": "Start with a small, approved source set and one accountable content owner. Add a useful answer layer without taking on an enterprise search rollout.",
+    "problemEyebrow": "The cost of scattered answers",
+    "problemTitle": "The same question keeps finding the same person.",
+    "problemDescription": "The pattern is familiar: a message arrives, someone searches a policy, and a People Ops or IT lead writes the answer again.",
+    "problem1Label": "People Ops",
+    "problem1Title": "Every policy question becomes a handoff.",
+    "problem1Description": "Leave, benefits, expenses, and remote work questions interrupt the people responsible for higher-value work.",
+    "problem2Label": "Onboarding",
+    "problem2Title": "New hires search before they start.",
+    "problem2Description": "The answer exists, but it is split across handbooks, checklists, folders, and old links.",
+    "problem3Label": "IT and operations",
+    "problem3Title": "Routine requests become interruptions.",
+    "problem3Description": "Access, setup, and security questions land wherever someone happens to be available.",
+    "workflowEyebrow": "A two-week pilot",
+    "workflowTitle": "Prove the value with the questions you already see.",
+    "workflowDescription": "Start narrow, use trusted documents, and measure the operational problem you want to reduce. The first rollout should be useful before it becomes broad.",
+    "step1Title": "Choose the source set",
+    "step1Description": "Bring 20 to 80 approved documents, such as the handbook, benefits guide, onboarding checklist, security guide, and key runbooks.",
+    "step2Title": "Open the answer path",
+    "step2Description": "Employees ask natural-language questions in the web workspace or Slack instead of searching filenames or interrupting a teammate.",
+    "step3Title": "Review what changes",
+    "step3Description": "Track repeated questions, source coverage, and gaps in the documentation. Keep the content owner in control of what gets indexed.",
+    "useCasesEyebrow": "Start with high-frequency questions",
+    "useCasesTitle": "Move from question to answer.",
+    "useCasesDescription": "Choose a workflow to see how a repeated question becomes a source-backed answer.",
+    "motionHint": "Watch the workflows rotate, or choose one to explore.",
+    "motionNext": "Next workflow",
+    "useCase1Label": "People Ops",
+    "useCase1Title": "Answer handbook questions without the handoff",
+    "useCase1Description": "Give employees clear guidance on leave, benefits, expenses, remote work, and workplace policies before another message reaches People Ops.",
+    "useCase1Question": "What is our parental leave policy?",
+    "useCase1Source": "Leave and Time Off Policy",
+    "useCase2Label": "Onboarding",
+    "useCase2Title": "Give new hires a reliable first week",
+    "useCase2Description": "Turn onboarding checklists, team norms, and account setup instructions into answers new hires can use without waiting for a manager.",
+    "useCase2Question": "What should I complete before my first day?",
+    "useCase2Source": "New Hire Onboarding Checklist",
+    "useCase3Label": "Routine IT",
+    "useCase3Title": "Deflect repeat support requests",
+    "useCase3Description": "Surface approved setup, security, and troubleshooting steps before another routine question reaches a lean IT or operations team.",
+    "useCase3Question": "How do I report a suspicious email?",
+    "useCase3Source": "IT Security and Reporting Guide",
+    "fitEyebrow": "Qualification",
+    "fitTitle": "A focused first rollout beats a broad AI project.",
+    "fitDescription": "OrgChai is built for a clear operational trigger, not for every knowledge problem at once.",
+    "fitGoodTitle": "A strong fit when",
+    "fitGoodDescription": "You have 50 to 150 employees, active Slack usage, repeated handbook or onboarding questions, and one person who can own the approved source documents.",
+    "fitNotYetTitle": "Wait if you need",
+    "fitNotYetDescription": "A full enterprise search layer, many native connectors, granular document permissions, or autonomous actions across business systems.",
+    "seoLink1": "Employee self-service software",
+    "seoLink2": "HR knowledge base",
+    "seoLink3": "Employee onboarding software",
+    "seoLink4": "Slack employee support",
+    "seoLink5": "Internal IT helpdesk",
+    "seoWorkflow1": "Internal knowledge base software",
+    "seoWorkflow2": "Employee knowledge base",
+    "seoWorkflow3": "Knowledge base analytics",
+    "securityEyebrow": "Controls for a careful rollout",
+    "securityTitle": "Keep the answer layer inside clear boundaries.",
+    "securityDescription": "The first version should make trusted information easier to use, not pretend to replace your systems of record.",
+    "securityNote": "Client requests pass through the web server. The application API key is never shipped in the browser bundle.",
+    "security1Title": "Authenticated access",
+    "security1Description": "Firebase ID tokens are verified before protected API routes return user-specific data.",
+    "security2Title": "User-scoped history",
+    "security2Description": "PostgreSQL stores chat history by user while the pilot source collection is managed as a shared organizational set.",
+    "security3Title": "Admin-owned sources",
+    "security3Description": "Configured administrators control which documents are added to or removed from the shared knowledge base.",
+    "finalEyebrow": "Ready when the questions are real",
+    "finalTitle": "Bring the last 20 repeated questions into one pilot.",
+    "finalDescription": "Start with the documents you trust, give employees a clear place to ask, and see whether the repeat work actually goes down.",
+    "finalCta": "Open the workspace",
+    "footerDescription": "Source-backed employee self-service for lean teams.",
+    "preview": {
+      "online": "Pilot workspace",
+      "workspace": "Workspace",
+      "newChat": "Ask a question",
+      "hrGuide": "People handbook",
+      "itGuide": "Onboarding guide",
+      "securityGuide": "IT security",
+      "chatTitle": "People policy",
+      "question": "Can I carry unused leave into next year?",
+      "groundedAnswer": "Grounded answer",
+      "answer": "Unused annual leave can be carried forward up to five days. Submit the request in the HR portal before December 15. The policy owner is People Ops.",
+      "sourceLabel": "Source:",
+      "source": "Leave and Time Off Policy",
+      "footer": "1 approved source",
+      "match": "source verified"
+    }
+  },
+  "dashboard": {
+    "signInRequired": "Sign in to use OrgChai",
+    "signInHint": "Use the configured organization sign-in to sync your account with the API.",
+    "nav": {
+      "dashboard": "Chat",
+      "settings": "Settings",
+      "admin": "Admin"
+    }
+  },
+  "chat": {
+    "newChat": "New chat",
+    "workspaceLabel": "Workspace",
+    "knowledgeBase": "Knowledge base",
+    "indexedSources": "{count, plural, =0 {No indexed sources} one {# indexed source} other {# indexed sources}}",
+    "chats": "Chats",
+    "documents": "Documents",
+    "search": "Search",
+    "people": "People",
+    "workflows": "Workflows",
+    "recaps": "Recaps",
+    "searchPlaceholder": "Search sources",
+    "runSearch": "Search",
+    "savedSearchName": "Saved search name",
+    "saveSearch": "Save",
+    "savedSearches": "Saved searches",
+    "noSearchResults": "No matching sources.",
+    "peoplePlaceholder": "Find an owner or expert",
+    "findPeople": "Find people",
+    "noPeople": "No matching people.",
+    "chooseWorkflow": "Choose a workflow",
+    "createWorkflowProposal": "Create proposal",
+    "recapsHint": "Summarize an allowlisted Slack channel or thread. OrgChai does not post or modify messages.",
+    "slackChannelId": "Slack channel ID",
+    "slackThreadTs": "Thread timestamp (optional)",
+    "slackDestination": "Destination channel (scheduled only)",
+    "scheduleOnDemand": "On demand",
+    "scheduleHourly": "Hourly",
+    "scheduleDaily": "Daily",
+    "createRecap": "Create recap",
+    "saveDigest": "Save digest",
+    "savedDigests": "Saved digests",
+    "runDigest": "Run digest",
+    "openSlackSource": "Open Slack source",
+    "recapUnavailable": "This Slack recap is unavailable.",
+    "slackNotReady": "Slack is not ready. Missing scopes",
+    "slackUnavailable": "Slack status unavailable",
+    "sourceSystemFilter": "Source system",
+    "ownerFilter": "Owner",
+    "departmentFilter": "Department",
+    "collectionFilter": "Collection",
+    "allCollections": "All collections",
+    "statusFilter": "Status",
+    "topicFilter": "Topic",
+    "effectiveFrom": "Effective from",
+    "effectiveTo": "Effective to",
+    "noChats": "No chats yet.",
+    "noDocs": "No documents indexed.",
+    "startHere": "Start here",
+    "emptyTitle": "OrgChai",
+    "emptyHint": "Internal Q&A for company knowledge. Ask a question to start.",
+    "placeholder": "Ask about company policies, IT, benefits...",
+    "footer": "OrgChai answers from your indexed internal documents.",
+    "openSource": "Open source",
+    "previewSource": "Preview",
+    "loadingSource": "Loading",
+    "sourcePreview": "Source preview",
+    "sourcePreviewUnavailable": "This source preview is unavailable.",
+    "sourceStatus": "source status unavailable",
+    "helpful": "Helpful",
+    "notHelpful": "Not helpful",
+    "incorrect": "Incorrect",
+    "missingSource": "Missing source",
+    "reportConcern": "Report concern",
+    "proposeAction": "Propose follow-up",
+    "responseMode": "Response mode",
+    "answerLanguage": "Answer language",
+    "languageDefault": "User language",
+    "languageEnglish": "English",
+    "languageJapanese": "Japanese",
+    "contextSource": "Context source",
+    "browserContext": "Browser context",
+    "noContextSource": "No context source",
+    "modeAnswer": "Answer",
+    "modeCompare": "Compare",
+    "modeSummarize": "Summarize",
+    "modeChecklist": "Checklist",
+    "modeResearch": "Research",
+    "sources": "Sources:",
+    "ownerLabel": "Owner",
+    "smeLabel": "SME",
+    "reviewedLabel": "Reviewed",
+    "expiresLabel": "Expires",
+    "provenanceLabel": "Provenance",
+    "stepsLabel": "Steps",
+    "relatedSourcesLabel": "Related sources",
+    "chooseFile": "Choose a source file",
+    "q1": "How many vacation days do I get?",
+    "q2": "How do I reset the staging database?",
+    "q3": "What is the 401k match?",
+    "q4": "How do I report a phishing email?"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Your signed-in account.",
+    "displayName": "Display name",
+    "email": "Email",
+    "admin": "Admin",
+    "deleteChatsTitle": "Delete chat history",
+    "deleteChatsDescription": "This permanently deletes all of your chats and messages. Type DELETE to confirm.",
+    "deleteChatsConfirmation": "Type DELETE",
+    "deleteChatsButton": "Delete all chats",
+    "deleteChatsComplete": "Deleted {count} chats."
+    ,"exportTitle": "Export my data"
+    ,"exportDescription": "Download your chats, feedback, saved searches, and action proposals as a JSON file."
+    ,"exportButton": "Export data"
+    ,"deleteDataTitle": "Delete all personal data"
+    ,"deleteDataDescription": "This removes your chats, feedback, saved searches, reviews, and action proposals. Type DELETE MY DATA to confirm."
+    ,"deleteDataConfirmation": "Type DELETE MY DATA"
+    ,"deleteDataButton": "Delete my data"
+    ,"deleteDataComplete": "Your personal data was deleted."
+  },
+  "admin": {
+    "title": "Admin",
+    "subtitle": "Shared knowledge base.",
+    "forbidden": "You do not have admin access. Set ADMIN_EMAILS on the API.",
+    "chunks": "Indexed chunks",
+    "docs": "Documents",
+    "db": "Database",
+    "qualityTitle": "Answer quality",
+    "feedback": "Feedback received",
+    "openReviews": "Open reviews",
+    "reviewedItems": "Review items",
+    "activeUsers": "Active users",
+    "questions": "Questions",
+    "sourceClicks": "Source clicks",
+    "feedbackRate": "Feedback rate",
+    "p95Latency": "P95 latency",
+    "estimatedCost": "Estimated model cost",
+    "approvalRate": "Action approval rate",
+    "humanHandoffs": "Pending human handoffs",
+    "noResultQueries": "No-result queries",
+    "staleSources": "Stale sources",
+    "unknownQuestion": "Question unavailable",
+    "startReview": "Start review",
+    "resolve": "Resolve",
+    "dismiss": "Dismiss",
+    "noReviews": "No review items need attention.",
+    "owner": "Owner",
+    "subjectMatterExpert": "Subject-matter expert",
+    "allowedEmails": "Allowed emails, comma-separated",
+    "allowedDomains": "Allowed domains, comma-separated",
+    "allowedGroups": "Allowed directory groups, comma-separated",
+    "sourceSystem": "Source system",
+    "topic": "Topic",
+    "department": "Department",
+    "duplicateOf": "Duplicate of",
+    "metadataTitle": "Title",
+    "sourceUrl": "Canonical source URL",
+    "saveMetadata": "Save metadata"
+    ,"policyTitle": "Data handling policy"
+    ,"modelProvider": "Answer provider"
+    ,"noTraining": "No training statement"
+    ,"providerRetention": "Provider retention"
+    ,"chatRetention": "Chat retention (days)"
+    ,"dlpTitle": "Sensitive-data handling"
+    ,"dlpDescription": "Choose whether detected personal or credential data is flagged, redacted, or blocked during future ingestion."
+    ,"saveDlp": "Save DLP policy"
+    ,"dlpSaved": "DLP policy saved"
+    ,"dataClassification": "Data classification"
+    ,"retentionConfigTitle": "Retention and deletion settings"
+    ,"retentionDescription": "A value of 0 keeps the data until an administrator changes the policy. Chat retention covers prompts and answers."
+    ,"chatPromptAnswer": "Chats, prompts, and answers (days)"
+    ,"sourceCopies": "Source copies (days)"
+    ,"embeddings": "Embeddings (days)"
+    ,"auditEvents": "Audit events (days)"
+    ,"metrics": "Usage metrics (days)"
+    ,"feedbackRetention": "Feedback and reviews (days)"
+    ,"saveRetention": "Save retention policy"
+    ,"applyRetentionDescription": "Applying the policy now permanently deletes records older than their configured windows."
+    ,"applyRetentionConfirmation": "Type APPLY RETENTION"
+    ,"applyRetention": "Apply retention now"
+    ,"retentionSaved": "Retention policy saved"
+    ,"retentionApplied": "Retention cleanup complete, records removed"
+    ,"sourcePermissions": "Source permissions"
+    ,"organizationBoundary": "Organization boundary"
+    ,"mcpTitle": "Read-only tool interface"
+    ,"mcpDescription": "Expose permission-filtered search and source preview through an audited JSON-RPC interface."
+    ,"readOnly": "read only"
+    ,"mcpCheck": "Verify read-only search"
+    ,"mcpCheckPassed": "Tool call passed"
+    ,"mcpCheckFailed": "Tool call failed"
+    ,"dlpAction": "DLP action"
+    ,"dataResidency": "Data residency"
+    ,"regionalProcessing": "Regional processing"
+    ,"secretsRotation": "Secrets rotation"
+    ,"encryptionAtRest": "Encryption at rest"
+    ,"dataExport": "Data export"
+    ,"deletionConfirmation": "Deletion confirmation"
+    ,"identityProvider": "Identity provider"
+    ,"scimProvisioning": "SCIM provisioning"
+    ,"configured": "configured"
+    ,"approvedConnectors": "Approved connectors"
+    ,"actionAllowlist": "Action allowlist"
+    ,"adminPolicyTitle": "Access and action policy"
+    ,"adminPolicyDescription": "Control approved connectors, model choices, web access, data classes, tools, and action scopes."
+    ,"policyConnectorKinds": "Approved connector kinds"
+    ,"policyModels": "Approved model names"
+    ,"policyDataClasses": "Allowed data classes"
+    ,"policyTools": "Allowed tools"
+    ,"policyActions": "Action scopes"
+    ,"webAccess": "Web access"
+    ,"webAccessDisabled": "Disabled"
+    ,"webAccessApprovedOnly": "Approved sources only"
+    ,"webAccessEnabled": "Enabled"
+    ,"saveAdminPolicy": "Save access policy"
+    ,"adminPolicySaved": "Access policy saved"
+    ,"notConfigured": "Not configured"
+    ,"backupsTitle": "Database backups"
+    ,"backupsHint": "Create a verified PostgreSQL archive on the persistent application volume."
+    ,"backupsConfigured": "Backup tooling configured"
+    ,"backupsUnavailable": "Backup tooling unavailable"
+    ,"backupRetention": "Retention count"
+    ,"createBackup": "Create verified backup"
+    ,"lastBackup": "Last verified backup"
+    ,"backupFailed": "Backup could not be created."
+    ,"connectorTitle": "Connectors"
+    ,"directoryTitle": "Directory identities"
+    ,"directoryHint": "Map directory users, groups, and roles to source permissions. SCIM provisioning uses the server-only bearer token."
+    ,"externalId": "External ID"
+    ,"directoryEmail": "Directory email"
+    ,"directoryName": "Display name"
+    ,"directoryGroups": "Groups, comma-separated"
+    ,"directoryRoles": "Roles, comma-separated"
+    ,"saveDirectoryUser": "Save identity"
+    ,"removeDirectoryUser": "Remove identity"
+    ,"noGroups": "No groups"
+    ,"connectorHint": "Sync a controlled local folder, Google Drive scope, SharePoint drive, or read-only JSON API as a source collection."
+    ,"connectorContract": "Contract"
+    ,"metadataFields": "metadata fields"
+    ,"identityMappingSupported": "identity mapping supported"
+    ,"identityMappingUnavailable": "identity mapping unavailable"
+    ,"lastSuccess": "last successful crawl"
+    ,"quarantined": "quarantined"
+    ,"freshnessTarget": "freshness target"
+    ,"manual": "manual"
+    ,"connectorName": "Connector name"
+    ,"localFolder": "Local folder"
+    ,"googleDrive": "Google Drive"
+    ,"sharepoint": "SharePoint"
+    ,"restApi": "Read-only JSON API"
+    ,"endpointUrl": "HTTPS endpoint URL"
+    ,"integrationCategory": "Integration category"
+    ,"ticketing": "Ticketing"
+    ,"hr": "HR"
+    ,"projectTracking": "Project tracking"
+    ,"calendar": "Calendar"
+    ,"directory": "Directory"
+    ,"tokenEnv": "Server token env name"
+    ,"scopeId": "Folder or site ID"
+    ,"driveId": "Drive ID"
+    ,"rootPath": "Folder path"
+    ,"schedule": "Schedule label"
+    ,"retryLimit": "Retry limit"
+    ,"retryBackoffSeconds": "Retry backoff seconds"
+    ,"webhookSecretEnv": "Webhook secret env name"
+    ,"addConnector": "Add connector"
+    ,"indexed": "indexed"
+    ,"syncNow": "Sync now"
+    ,"pause": "Pause"
+    ,"resume": "Resume"
+    ,"failures": "failures"
+    ,"retryPolicy": "retry limit"
+    ,"retryCount": "retries used"
+    ,"saveRetryPolicy": "Save retry policy"
+    ,"stale": "stale"
+    ,"noConnectors": "No connectors configured."
+    ,"auditTitle": "Audit log"
+    ,"exportAudit": "Export audit"
+    ,"exportAnalytics": "Export analytics"
+    ,"exportSuccess": "Export downloaded"
+    ,"exportError": "Export failed"
+    ,"systemActor": "system"
+    ,"noAudit": "No audit events recorded."
+    ,"actionTitle": "Action proposals"
+    ,"actionHint": "Proposals are drafts only. Approval does not execute an external write."
+    ,"approve": "Approve"
+    ,"reject": "Reject"
+    ,"noActions": "No action proposals."
+    ,"proposalInputs": "Inputs"
+    ,"proposalSources": "Sources"
+    ,"proposalEffects": "Expected side effects"
+    ,"none": "none"
+    ,"discoveryTitle": "Discovery settings"
+    ,"discoveryHint": "Group trusted sources and define organization terminology for search expansion."
+    ,"collectionName": "Collection name"
+    ,"collectionDescription": "Description"
+    ,"collectionSources": "Source names, comma-separated"
+    ,"boost": "Boost"
+    ,"authoritative": "Authoritative"
+    ,"addCollection": "Add collection"
+    ,"sourcesCount": "sources"
+    ,"glossaryTerm": "Glossary term"
+    ,"glossarySynonyms": "Synonyms, comma-separated"
+    ,"glossaryDefinition": "Definition"
+    ,"saveGlossary": "Save glossary term"
+    ,"evaluationTitle": "Evaluation workspace"
+    ,"evaluationHint": "Store golden questions and expected sources, then measure retrieval hit rate and reciprocal rank."
+    ,"evaluationCaseTitle": "Case title"
+    ,"evaluationQuestion": "Golden question"
+    ,"evaluationSources": "Expected sources, comma-separated"
+    ,"evaluationLanguage": "Evaluation language"
+    ,"languageDefault": "Default"
+    ,"languageEnglish": "English"
+    ,"languageJapanese": "Japanese"
+    ,"addEvaluation": "Add case"
+    ,"evaluationCases": "Cases"
+    ,"runEvaluation": "Run evaluation"
+    ,"hitRate": "Hit rate"
+  }
+}

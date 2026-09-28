@@ -1,0 +1,17 @@
+# ACME Corp HR Policy
+
+## Vacation Policy
+
+All full-time employees are entitled to 20 days of paid vacation per calendar year. Vacation days accrue monthly and do not roll over into the next calendar year. Employees must request vacation at least 14 days in advance through the internal HR portal. Vacation requests are approved by the employee's direct manager.
+
+## Sick Leave
+
+Employees receive 10 days of paid sick leave per year. A doctor's note is required for any sick leave lasting more than three consecutive days. Sick leave does not carry over to the following year.
+
+## Remote Work
+
+ACME Corp supports a hybrid work model. Employees are expected to be in the office at least 2 days per week, typically Tuesday and Thursday. Fully remote arrangements can be requested in writing and require approval from both the manager and the HR department.
+
+## Onboarding
+
+New hires complete a 5-day onboarding program in their first week. Day 1 covers account setup and IT equipment. Days 2 to 5 cover company policies, team introductions, and role-specific training. Each new hire is assigned a buddy from their team for the first 30 days.
