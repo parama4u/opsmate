@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { ArrowRight, Check, FileCheck2, MessageCircleQuestion, ShieldCheck } from 'lucide-react';
 import { notFound } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { routing, type Locale } from '@/i18n/routing';
 import { getSeoPage, seoPageSlugs } from '@/lib/seo-pages';
@@ -33,6 +34,7 @@ export default async function SeoLandingPage({ params }: SeoPageProps) {
   const { locale: rawLocale, slug } = await params;
   const locale = rawLocale as Locale;
   const page = getSeoPage(locale, slug);
+  const t = await getTranslations('seo');
 
   if (!page) notFound();
 
@@ -65,10 +67,14 @@ export default async function SeoLandingPage({ params }: SeoPageProps) {
       },
     ],
   };
+  const structuredDataJson = JSON.stringify(structuredData)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026');
 
   return (
     <div className="mx-auto w-full max-w-7xl overflow-hidden">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: structuredDataJson }} />
 
       <section className="grid gap-12 pb-20 pt-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:pb-28 lg:pt-20">
         <div className="seo-page-enter relative z-10">
@@ -89,7 +95,7 @@ export default async function SeoLandingPage({ params }: SeoPageProps) {
           <div className="absolute inset-0 bg-gradient-to-tr from-background/80 via-transparent to-primary/20" />
           <div className="absolute bottom-7 left-7 flex items-center gap-3 bg-background/90 px-4 py-3 text-xs font-semibold uppercase tracking-[0.12em] text-foreground sm:bottom-10 sm:left-10">
             <FileCheck2 className="h-4 w-4 text-primary" />
-            Source-backed answers
+            {t('sourceBackedAnswers')}
           </div>
         </div>
       </section>
@@ -97,7 +103,7 @@ export default async function SeoLandingPage({ params }: SeoPageProps) {
       <section className="py-20 lg:py-28">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Why teams use it</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">{t('whyTeamsUseIt')}</p>
             <h2 className="mt-5 text-3xl font-semibold tracking-[-0.04em] sm:text-5xl">{page.sectionsTitle}</h2>
           </div>
           <p className="max-w-md leading-7 text-muted-foreground">{page.fitDescription}</p>
@@ -118,7 +124,7 @@ export default async function SeoLandingPage({ params }: SeoPageProps) {
       <section id="how-it-works" className="py-20 lg:py-28">
         <div className="grid gap-12 lg:grid-cols-[0.7fr_1.3fr] lg:gap-20">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Pilot plan</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">{t('pilotPlan')}</p>
             <h2 className="mt-5 text-3xl font-semibold tracking-[-0.04em] sm:text-5xl">{page.stepsTitle}</h2>
           </div>
           <div className="space-y-10">
@@ -139,7 +145,7 @@ export default async function SeoLandingPage({ params }: SeoPageProps) {
 
       <section className="py-20 lg:py-28">
         <div className="bg-secondary p-8 sm:p-12 lg:p-16">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">A focused fit</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">{t('focusedFit')}</p>
           <div className="mt-6 grid gap-10 lg:grid-cols-[1fr_0.8fr] lg:items-end">
             <h2 className="max-w-3xl text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">{page.fitTitle}</h2>
             <p className="max-w-xl leading-7 text-muted-foreground">{page.fitDescription}</p>
@@ -149,8 +155,8 @@ export default async function SeoLandingPage({ params }: SeoPageProps) {
 
       <section className="py-20 lg:py-28">
         <div className="max-w-2xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">Common questions</p>
-          <h2 className="mt-5 text-3xl font-semibold tracking-[-0.04em] sm:text-5xl">What buyers want to know</h2>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">{t('commonQuestions')}</p>
+          <h2 className="mt-5 text-3xl font-semibold tracking-[-0.04em] sm:text-5xl">{t('buyersWantToKnow')}</h2>
         </div>
         <div className="mt-10 grid gap-8 md:grid-cols-3">
           {page.faqs.map((faq) => (
@@ -165,7 +171,7 @@ export default async function SeoLandingPage({ params }: SeoPageProps) {
       <section className="py-20 lg:py-28">
         <div className="relative overflow-hidden bg-primary p-8 text-primary-foreground sm:p-12 lg:p-16">
           <div className="relative max-w-3xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em]">Start with a focused source set</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em]">{t('focusedSourceSet')}</p>
             <h2 className="mt-6 text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">{page.ctaTitle}</h2>
             <p className="mt-5 max-w-xl leading-7 text-primary-foreground/80">{page.ctaDescription}</p>
             <Link href="/" className="mt-8 inline-flex h-12 items-center bg-background px-6 text-base font-semibold text-foreground transition-transform hover:translate-x-1">

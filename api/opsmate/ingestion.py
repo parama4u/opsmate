@@ -11,6 +11,8 @@ from xml.etree import ElementTree
 
 from fastapi import HTTPException
 
+MAX_EXTRACTED_TEXT = 5_000_000
+
 
 class _TextParser(HTMLParser):
     def __init__(self):
@@ -109,6 +111,8 @@ def extract_text(content: bytes, extension: str) -> str:
         raise HTTPException(status_code=400, detail="Could not extract readable text from this file") from exc
     if not text.strip():
         raise HTTPException(status_code=400, detail="The uploaded file contains no readable text")
+    if len(text) > MAX_EXTRACTED_TEXT:
+        raise HTTPException(status_code=413, detail="The extracted document is too large")
     return text
 
 

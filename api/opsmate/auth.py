@@ -1,5 +1,6 @@
 """Firebase token and API-key auth for the FastAPI app."""
 
+import hmac
 import os
 from dataclasses import dataclass
 from typing import Optional
@@ -144,7 +145,7 @@ def verify_api_key(x_api_key: Optional[str] = Header(default=None, alias="X-API-
             raise HTTPException(status_code=500, detail="API key not configured")
         return
     incoming = (x_api_key or "").strip()
-    if incoming != expected:
+    if not hmac.compare_digest(incoming, expected):
         raise HTTPException(status_code=401, detail="Invalid or missing API key")
 
 
@@ -165,7 +166,7 @@ def get_current_user(request: Request) -> CurrentUser:
     try:
         from firebase_admin import auth as fb_auth
 
-        decoded = fb_auth.verify_id_token(token)
+        decoded = fb_auth.verify_id_token(token, check_revoked=True)
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
 

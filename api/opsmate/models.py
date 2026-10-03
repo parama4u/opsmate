@@ -3,7 +3,8 @@
 from datetime import date
 from typing import List, Literal, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator, model_validator
+from urllib.parse import urlparse
 
 
 class DocumentChunk(BaseModel):
@@ -24,7 +25,7 @@ class DocumentChunk(BaseModel):
 class AskRequest(BaseModel):
     """Request body for the /ask endpoint."""
 
-    question: str
+    question: str = Field(min_length=1, max_length=4000)
     top_k: int = Field(default=3, ge=1, le=10)
     generate: bool = True
     mode: Literal["answer", "compare", "summarize", "checklist", "research"] = "answer"
@@ -44,11 +45,17 @@ class SearchRequest(BaseModel):
     effective_to: Optional[date] = None
     collection_id: Optional[str] = Field(default=None, max_length=40)
 
+    @model_validator(mode="after")
+    def validate_date_range(self):
+        if self.effective_from and self.effective_to and self.effective_from > self.effective_to:
+            raise ValueError("effective_from must be before effective_to")
+        return self
+
 
 class AskResponse(BaseModel):
     """Response from the /ask endpoint."""
 
-    question: str
+    question: str = Field(min_length=1, max_length=4000)
     answer: str
     sources: List[DocumentChunk]
     model: str
@@ -107,7 +114,7 @@ class SendChatRequest(BaseModel):
 class RenameChatRequest(BaseModel):
     """Request body for renaming a chat."""
 
-    title: str
+    title: str = Field(min_length=1, max_length=120)
 
 
 class DeleteChatsRequest(BaseModel):
@@ -223,7 +230,7 @@ class DirectoryUserRequest(BaseModel):
 
 
 class FeedbackRequest(BaseModel):
-    message_id: str
+    message_id: str = Field(min_length=1, max_length=128)
     kind: Literal["helpful", "not_helpful", "incorrect", "missing_source", "report_concern"]
     note: Optional[str] = Field(default=None, max_length=1000)
 
@@ -242,14 +249,24 @@ class DocumentMetadataRequest(BaseModel):
     source_system: Optional[str] = Field(default=None, max_length=100)
     topic: Optional[str] = Field(default=None, max_length=200)
     department: Optional[str] = Field(default=None, max_length=200)
-    allowed_emails: Optional[List[str]] = None
-    allowed_domains: Optional[List[str]] = None
-    allowed_groups: Optional[List[str]] = None
+    allowed_emails: Optional[List[str]] = Field(default=None, max_length=100)
+    allowed_domains: Optional[List[str]] = Field(default=None, max_length=100)
+    allowed_groups: Optional[List[str]] = Field(default=None, max_length=100)
     last_reviewed_at: Optional[date] = None
     effective_date: Optional[date] = None
     expiration_date: Optional[date] = None
     data_classification: Optional[Literal["internal", "personal", "restricted"]] = None
     change_note: Optional[str] = Field(default=None, max_length=500)
+
+    @field_validator("source_url")
+    @classmethod
+    def validate_source_url(cls, value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return value
+        parsed = urlparse(value)
+        if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+            raise ValueError("source_url must be an HTTP or HTTPS URL")
+        return value
 
 
 class ConnectorCreateRequest(BaseModel):

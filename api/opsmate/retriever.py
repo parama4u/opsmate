@@ -53,6 +53,16 @@ class TfidfRetriever:
                     sentences = re.split(r"(?<=[.!?]) +", current)
                     current = ""
                     for sentence in sentences:
+                        if len(sentence) > self.max_chunk_size:
+                            if current:
+                                chunks.append(current.strip())
+                                current = ""
+                            chunks.extend(
+                                DocumentChunk(text=sentence[start:start + self.max_chunk_size].strip(), source=source)
+                                for start in range(0, len(sentence), self.max_chunk_size)
+                                if sentence[start:start + self.max_chunk_size].strip()
+                            )
+                            continue
                         if len(current) + len(sentence) < self.max_chunk_size:
                             current += (" " if current else "") + sentence
                         else:

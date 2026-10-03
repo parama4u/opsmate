@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth/AuthProvider';
 import { ChatShell } from '@/components/chat/ChatShell';
 import { ChatMessages } from '@/components/chat/ChatMessages';
@@ -20,7 +21,9 @@ import {
 
 export default function DashboardPage() {
   const { user, isAdmin, role } = useAuth();
+  const t = useTranslations('chat');
   const [initialContext, setInitialContext] = useState('');
+  const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
     const raw = new URLSearchParams(window.location.search).get('context');
@@ -60,9 +63,14 @@ export default function DashboardPage() {
   }, []);
 
   const newChat = useCallback(async () => {
-    const chat = await createChat.mutateAsync();
-    setActiveChatId(chat.id);
-  }, [createChat]);
+    setActionError(null);
+    try {
+      const chat = await createChat.mutateAsync();
+      setActiveChatId(chat.id);
+    } catch {
+      setActionError(t('actionFailed'));
+    }
+  }, [createChat, t]);
 
   const onDeleteChat = useCallback(async (id: string) => {
     await deleteChat.mutateAsync(id);
@@ -70,18 +78,28 @@ export default function DashboardPage() {
   }, [deleteChat, activeChatId]);
 
   const send = useCallback(async (text: string, mode: 'answer' | 'compare' | 'summarize' | 'checklist' | 'research' = 'answer', language: 'default' | 'en' | 'ja' = 'default', contextSource?: string) => {
-    let chatId = activeChatId;
-    if (!chatId) {
-      const chat = await createChat.mutateAsync();
-      chatId = chat.id;
-      setActiveChatId(chatId);
+    setActionError(null);
+    try {
+      let chatId = activeChatId;
+      if (!chatId) {
+        const chat = await createChat.mutateAsync();
+        chatId = chat.id;
+        setActiveChatId(chatId);
+      }
+      await sendMessage.mutateAsync({ chatId, question: text, mode, language, contextSources: contextSource ? [contextSource] : [] });
+    } catch {
+      setActionError(t('actionFailed'));
     }
-    await sendMessage.mutateAsync({ chatId, question: text, mode, language, contextSources: contextSource ? [contextSource] : [] });
-  }, [activeChatId, createChat, sendMessage]);
+  }, [activeChatId, createChat, sendMessage, t]);
 
-  const submitFeedback = useCallback((messageId: string, kind: 'helpful' | 'not_helpful' | 'incorrect' | 'missing_source' | 'report_concern') => {
-    feedback.mutate({ messageId, kind });
-  }, [feedback]);
+  const submitFeedback = useCallback(async (messageId: string, kind: 'helpful' | 'not_helpful' | 'incorrect' | 'missing_source' | 'report_concern') => {
+    setActionError(null);
+    try {
+      await feedback.mutateAsync({ messageId, kind });
+    } catch {
+      setActionError(t('actionFailed'));
+    }
+  }, [feedback, t]);
 
   const proposeAction = useCallback((question: string, message: { id: string; content: string; sources?: { source: string }[] }) => {
     createActionProposal.mutate({
@@ -106,12 +124,13 @@ export default function DashboardPage() {
       onNewChat={newChat}
       onDeleteChat={onDeleteChat}
       documents={documents}
-      onUploadDocument={(file) => uploadDoc.mutate(file)}
+      onUploadDocument={(file) => uploadDoc.mutateAsync(file).then(() => undefined)}
       onDeleteDocument={(name) => deleteDoc.mutate(name)}
       canManageDocuments={isAdmin || role === 'knowledge_owner'}
     >
-      <ChatMessages messages={messages} loading={sending} onSuggest={send} onFeedback={submitFeedback} onProposeAction={proposeAction} />
-      <ChatInput onSend={send} disabled={sending} documents={Object.keys(documents)} initialValue={initialContext} />
+      {actionError ? <p role="alert" className="px-4 py-2 text-sm text-red-700">{actionError}</p> : null}
+      <ChatMessages messages={messages} loading={sending} onSuggest={send} onFeedback={submitFeedback} feedbackPending={feedback.isPending} onProposeAction={proposeAction} />
+      <ChatInput onSend={send} disabled={sending || createChat.isPending} documents={Object.keys(documents)} initialValue={initialContext} />
     </ChatShell>
   );
 }

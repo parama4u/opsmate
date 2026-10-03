@@ -28,12 +28,18 @@ class KnowledgeStore:
     def _read(self, name: str, default: Any) -> Any:
         path = self.base_dir / name
         try:
-            return json.loads(path.read_text(encoding="utf-8"))
+            value = json.loads(path.read_text(encoding="utf-8"))
+            if isinstance(default, list):
+                return [item for item in value if isinstance(item, dict)] if isinstance(value, list) else default
+            return value if isinstance(value, type(default)) else default
         except (OSError, json.JSONDecodeError):
             return default
 
     def _write(self, name: str, value: Any) -> None:
-        (self.base_dir / name).write_text(json.dumps(value, ensure_ascii=False, indent=2), encoding="utf-8")
+        path = self.base_dir / name
+        temp_path = path.with_suffix(path.suffix + ".tmp")
+        temp_path.write_text(json.dumps(value, ensure_ascii=False, indent=2), encoding="utf-8")
+        temp_path.replace(path)
 
     def _documents(self) -> dict[str, dict]:
         return self._read("documents.json", {})
@@ -142,6 +148,7 @@ class KnowledgeStore:
         return updated
 
     def upsert_document(self, source: str, changes: dict, actor: Optional[str] = None) -> dict:
+        changes = dict(changes)
         documents = self._documents()
         current = self.get_document(source)
         history = list(current.get("history", []))

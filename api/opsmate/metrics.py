@@ -21,12 +21,15 @@ class MetricsStore:
 
     def _read(self) -> list[dict]:
         try:
-            return json.loads(self.path.read_text(encoding="utf-8"))
+            value = json.loads(self.path.read_text(encoding="utf-8"))
+            return [item for item in value if isinstance(item, dict)] if isinstance(value, list) else []
         except (OSError, json.JSONDecodeError):
             return []
 
     def _write(self, records: list[dict]) -> None:
-        self.path.write_text(json.dumps(records, ensure_ascii=False, indent=2), encoding="utf-8")
+        temp_path = self.path.with_suffix(".json.tmp")
+        temp_path.write_text(json.dumps(records, ensure_ascii=False, indent=2), encoding="utf-8")
+        temp_path.replace(self.path)
 
     def record(self, event: str, **values) -> dict:
         record = {"id": uuid.uuid4().hex[:12], "created_at": _now(), "event": event}
@@ -38,7 +41,18 @@ class MetricsStore:
 
     def analytics(self) -> dict:
         records = self._read()
-        latencies = [float(item["latency_ms"]) for item in records if item.get("latency_ms") is not None]
+        latencies = []
+        estimated_cost = 0.0
+        for item in records:
+            if item.get("latency_ms") is not None:
+                try:
+                    latencies.append(float(item["latency_ms"]))
+                except (TypeError, ValueError):
+                    continue
+            try:
+                estimated_cost += float(item.get("estimated_cost", 0) or 0)
+            except (TypeError, ValueError):
+                continue
         models: dict[str, int] = {}
         for item in records:
             model = item.get("model")
@@ -50,7 +64,7 @@ class MetricsStore:
             "answer_count": sum(1 for item in records if item.get("event") == "answer"),
             "average_latency_ms": round(statistics.fmean(latencies), 1) if latencies else 0,
             "p95_latency_ms": round(sorted_latencies[p95_index], 1) if sorted_latencies else 0,
-            "estimated_usage_cost": round(sum(float(item.get("estimated_cost", 0)) for item in records), 6),
+            "estimated_usage_cost": round(estimated_cost, 6),
             "model_counts": models,
             "fallback_count": sum(1 for item in records if item.get("model") in {"fallback", "fallback-no-context", "abstention"}),
         }

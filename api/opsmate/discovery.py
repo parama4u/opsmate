@@ -30,12 +30,18 @@ class DiscoveryStore:
 
     def _read(self, name: str, default):
         try:
-            return json.loads((self.root / name).read_text(encoding="utf-8"))
+            value = json.loads((self.root / name).read_text(encoding="utf-8"))
+            if isinstance(default, list):
+                return [item for item in value if isinstance(item, dict)] if isinstance(value, list) else default
+            return value if isinstance(value, type(default)) else default
         except (OSError, json.JSONDecodeError):
             return default
 
     def _write(self, name: str, value) -> None:
-        (self.root / name).write_text(json.dumps(value, ensure_ascii=False, indent=2), encoding="utf-8")
+        path = self.root / name
+        temp_path = path.with_suffix(path.suffix + ".tmp")
+        temp_path.write_text(json.dumps(value, ensure_ascii=False, indent=2), encoding="utf-8")
+        temp_path.replace(path)
 
     def collections(self) -> list[dict]:
         return self._read("collections.json", [])

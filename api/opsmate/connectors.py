@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode
+from urllib.parse import quote, urlencode, urlparse
 from urllib.request import Request, urlopen
 
 
@@ -23,12 +23,15 @@ class ConnectorStore:
 
     def _read(self) -> list[dict]:
         try:
-            return json.loads(self.path.read_text(encoding="utf-8"))
+            value = json.loads(self.path.read_text(encoding="utf-8"))
+            return [item for item in value if isinstance(item, dict)] if isinstance(value, list) else []
         except (OSError, json.JSONDecodeError):
             return []
 
     def _write(self, records: list[dict]) -> None:
-        self.path.write_text(json.dumps(records, ensure_ascii=False, indent=2), encoding="utf-8")
+        temp_path = self.path.with_suffix(".json.tmp")
+        temp_path.write_text(json.dumps(records, ensure_ascii=False, indent=2), encoding="utf-8")
+        temp_path.replace(self.path)
 
     def list(self) -> list[dict]:
         return self._read()
@@ -179,9 +182,7 @@ def _json_request(url: str, token: str, params: Optional[dict] = None) -> dict |
     request = Request(f"{url}{query}", headers=headers)
     try:
         with urlopen(request, timeout=30) as response:
-            import json
-
-            return json.loads(response.read().decode("utf-8"))
+            return json.loads(_read_response(response, 10 * 1024 * 1024).decode("utf-8"))
     except (HTTPError, URLError, TimeoutError, ValueError) as exc:
         raise RuntimeError("Connector request failed") from exc
 
@@ -190,9 +191,23 @@ def _download(url: str, token: str) -> bytes:
     request = Request(url, headers={"Authorization": f"Bearer {token}"})
     try:
         with urlopen(request, timeout=60) as response:
-            return response.read()
+            return _read_response(response, 25 * 1024 * 1024)
     except (HTTPError, URLError, TimeoutError) as exc:
         raise RuntimeError("Connector download failed") from exc
+
+
+def _read_response(response, max_bytes: int) -> bytes:
+    chunks: list[bytes] = []
+    total = 0
+    while True:
+        chunk = response.read(min(1024 * 1024, max_bytes - total + 1))
+        if not chunk:
+            break
+        total += len(chunk)
+        if total > max_bytes:
+            raise RuntimeError("Connector response is too large")
+        chunks.append(chunk)
+    return b"".join(chunks)
 
 
 def fetch_google_drive(connector: dict) -> list[dict]:
@@ -211,12 +226,13 @@ def fetch_google_drive(connector: dict) -> list[dict]:
         for item in payload.get("files", []):
             mime = item.get("mimeType", "")
             extension = Path(item.get("name", "")).suffix.lower()
-            download_url = f"https://www.googleapis.com/drive/v3/files/{item['id']}?alt=media"
+            encoded_id = quote(str(item["id"]), safe="")
+            download_url = f"https://www.googleapis.com/drive/v3/files/{encoded_id}?alt=media"
             if mime == "application/vnd.google-apps.document":
-                download_url = f"https://www.googleapis.com/drive/v3/files/{item['id']}/export?mimeType=text/plain"
+                download_url = f"https://www.googleapis.com/drive/v3/files/{encoded_id}/export?mimeType=text/plain"
                 extension = ".txt"
             elif mime == "application/vnd.google-apps.spreadsheet":
-                download_url = f"https://www.googleapis.com/drive/v3/files/{item['id']}/export?mimeType=text/csv"
+                download_url = f"https://www.googleapis.com/drive/v3/files/{encoded_id}/export?mimeType=text/csv"
                 extension = ".csv"
             if extension:
                 files.append({"id": item["id"], "name": item["name"], "extension": extension, "download_url": download_url, "source_url": item.get("webViewLink")})
@@ -244,7 +260,10 @@ def fetch_sharepoint(connector: dict) -> list[dict]:
             download_url = item.get("@microsoft.graph.downloadUrl")
             if extension and download_url:
                 files.append({"id": item.get("id"), "name": name, "extension": extension, "download_url": download_url, "source_url": item.get("webUrl")})
-        url = payload.get("@odata.nextLink")
+        next_url = payload.get("@odata.nextLink")
+        if next_url and urlparse(next_url).netloc != "graph.microsoft.com":
+            raise RuntimeError("SharePoint pagination URL is not trusted")
+        url = next_url
     return files
 
 

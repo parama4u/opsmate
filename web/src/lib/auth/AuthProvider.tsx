@@ -42,8 +42,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               });
               setIsAdmin(Boolean(res.data?.isAdmin));
               setRole(res.data?.role || 'member');
-            } catch (err) {
-              console.warn('[AuthProvider] backend sync failed:', err);
+            } catch {
+              console.warn('[AuthProvider] backend sync failed');
               setIsAdmin(false);
               setRole('member');
             }

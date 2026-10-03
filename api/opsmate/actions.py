@@ -25,7 +25,9 @@ class ActionStore:
             return []
 
     def _write(self, records: list[dict]) -> None:
-        self.path.write_text(json.dumps(records, ensure_ascii=False, indent=2), encoding="utf-8")
+        temp_path = self.path.with_suffix(".json.tmp")
+        temp_path.write_text(json.dumps(records, ensure_ascii=False, indent=2), encoding="utf-8")
+        temp_path.replace(self.path)
 
     def create(self, record: dict) -> dict:
         proposal = {

@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { LogoMark } from '@/components/common/LogoMark';
+import { Link } from '@/i18n/navigation';
 
 export default function Footer() {
   const t = useTranslations('common');
@@ -19,9 +20,9 @@ export default function Footer() {
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-          <a href="#features" className="hover:text-foreground">{tl('navFeatures')}</a>
-          <a href="#how-it-works" className="hover:text-foreground">{tl('navHowItWorks')}</a>
-          <a href="#security" className="hover:text-foreground">{tl('navSecurity')}</a>
+          <Link href="/#features" className="hover:text-foreground">{tl('navFeatures')}</Link>
+          <Link href="/#how-it-works" className="hover:text-foreground">{tl('navHowItWorks')}</Link>
+          <Link href="/#security" className="hover:text-foreground">{tl('navSecurity')}</Link>
           <span>© {year} {t('appName')}</span>
         </div>
       </div>

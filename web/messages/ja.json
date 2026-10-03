@@ -7,6 +7,7 @@
     "signingIn": "ログインを開いています...",
     "signInError": "ログインを完了できませんでした。Firebase の設定を確認して、もう一度お試しください。",
     "signOut": "ログアウト",
+    "signOutError": "ログアウトを完了できませんでした。もう一度お試しください。",
     "languageSwitcher": "言語",
     "languageEnglish": "英語",
     "languageJapanese": "日本語",
@@ -138,8 +139,22 @@
       "admin": "管理"
     }
   },
+  "seo": {
+    "sourceBackedAnswers": "出典付きの回答",
+    "whyTeamsUseIt": "選ばれる理由",
+    "pilotPlan": "パイロット計画",
+    "focusedFit": "対象の見極め",
+    "commonQuestions": "よくある質問",
+    "buyersWantToKnow": "導入前に確認したいこと",
+    "focusedSourceSet": "範囲を決めたソースから始める"
+  },
   "chat": {
     "newChat": "新しいチャット",
+    "deleteChat": "チャットを削除",
+    "deleteDocument": "ドキュメントを削除",
+    "uploadFailed": "ドキュメントをアップロードできませんでした。もう一度お試しください。",
+    "sendMessage": "メッセージを送信",
+    "actionFailed": "操作を完了できませんでした。もう一度お試しください。",
     "workspaceLabel": "ワークスペース",
     "knowledgeBase": "ナレッジベース",
     "indexedSources": "{count, plural, =0 {登録済みソースなし} other {# 件のソースを登録}}",
@@ -244,11 +259,15 @@
     ,"exportTitle": "自分のデータをエクスポート"
     ,"exportDescription": "チャット、フィードバック、保存済み検索、アクション提案を JSON ファイルでダウンロードします。"
     ,"exportButton": "データをエクスポート"
+    ,"exportPending": "エクスポートを準備しています..."
+    ,"exportSuccess": "エクスポートを準備しました。"
+    ,"exportError": "エクスポートを準備できませんでした。もう一度お試しください。"
     ,"deleteDataTitle": "個人データをすべて削除"
     ,"deleteDataDescription": "チャット、フィードバック、保存済み検索、レビュー、アクション提案を削除します。確認のため DELETE MY DATA と入力してください。"
     ,"deleteDataConfirmation": "DELETE MY DATA と入力"
     ,"deleteDataButton": "自分のデータを削除"
     ,"deleteDataComplete": "個人データを削除しました。"
+    ,"deleteError": "削除を完了できませんでした。もう一度お試しください。"
   },
   "admin": {
     "title": "管理",
@@ -257,6 +276,8 @@
     "chunks": "チャンク数",
     "docs": "ドキュメント",
     "db": "データベース",
+    "databaseOk": "接続済み",
+    "databaseOffline": "利用できません",
     "qualityTitle": "回答品質",
     "feedback": "受け取ったフィードバック",
     "openReviews": "未処理のレビュー",
@@ -276,6 +297,15 @@
     "resolve": "解決済みにする",
     "dismiss": "却下",
     "noReviews": "対応が必要なレビューはありません。",
+    "evaluationSaved": "評価ケースを保存しました。",
+    "evaluationSaveError": "評価ケースを保存できませんでした。もう一度お試しください。",
+    "evaluationRunSuccess": "評価を完了しました。",
+    "evaluationRunError": "評価を完了できませんでした。もう一度お試しください。",
+    "collectionSaved": "コレクションを保存しました。",
+    "collectionSaveError": "コレクションを保存できませんでした。もう一度お試しください。",
+    "glossarySaved": "用語を保存しました。",
+    "glossarySaveError": "用語を保存できませんでした。もう一度お試しください。",
+    "reviewUpdateError": "レビューを更新できませんでした。もう一度お試しください。",
     "owner": "担当者",
     "subjectMatterExpert": "担当分野の専門家",
     "allowedEmails": "許可するメール、カンマ区切り",

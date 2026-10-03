@@ -22,12 +22,15 @@ class RecapStore:
 
     def _read(self) -> list[dict]:
         try:
-            return json.loads(self.path.read_text(encoding="utf-8"))
+            value = json.loads(self.path.read_text(encoding="utf-8"))
+            return [item for item in value if isinstance(item, dict)] if isinstance(value, list) else []
         except (OSError, json.JSONDecodeError):
             return []
 
     def _write(self, records: list[dict]) -> None:
-        self.path.write_text(json.dumps(records, ensure_ascii=False, indent=2), encoding="utf-8")
+        temp_path = self.path.with_suffix(".json.tmp")
+        temp_path.write_text(json.dumps(records, ensure_ascii=False, indent=2), encoding="utf-8")
+        temp_path.replace(self.path)
 
     def create(self, record: dict) -> dict:
         digest = {

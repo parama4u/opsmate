@@ -14,8 +14,8 @@ export default function Error({
   const t = useTranslations('common');
 
   useEffect(() => {
-    console.error(error);
-  }, [error]);
+    console.error('Application route error', error.digest || 'unknown');
+  }, [error.digest]);
 
   return (
     <div className="mx-auto max-w-lg py-16 text-center">

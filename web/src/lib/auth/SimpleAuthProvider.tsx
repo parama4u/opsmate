@@ -111,20 +111,20 @@ export const getAuthErrorMessage = (error: unknown) => {
     case 'auth/popup-blocked':
       return 'Sign-in popup was blocked. Allow popups for this site and try again.';
     case 'auth/popup-closed-by-user':
-      return 'The Google sign-in popup closed before account selection. Allow popups for localhost and try again.';
+      return 'The sign-in popup closed before account selection. Allow popups for this site and try again.';
     case 'auth/cancelled-popup-request':
       return 'Another Google sign-in popup is already open. Close it and try again.';
     case 'auth/network-request-failed':
       return 'Google sign-in could not reach Firebase. Check the connection and try again.';
     case 'auth/internal-error':
-      return 'Google sign-in encountered a browser error. Allow popups for localhost and try again.';
+      return 'Sign-in encountered a browser error. Allow popups for this site and try again.';
     case 'auth/popup-timeout':
-      return 'The Google sign-in popup did not complete. Allow popups for localhost and try again.';
+      return 'The sign-in popup did not complete. Allow popups for this site and try again.';
     case 'auth/web-storage-unsupported':
     case 'auth/operation-not-supported-in-this-environment':
       return 'This browser cannot complete popup sign-in. Open the app in Chrome or another full browser and try again.';
     case 'auth/unauthorized-domain':
-      return 'This site is not authorized in Firebase Authentication.';
+      return 'This site is not authorized in Firebase Authentication. Add the current site domain to Firebase Authentication authorized domains, then try again.';
     case 'auth/operation-not-allowed':
       return 'Google sign-in is not enabled in Firebase Authentication.';
     default:

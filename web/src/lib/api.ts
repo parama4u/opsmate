@@ -63,7 +63,14 @@ export async function apiFetch<T>(path: string, opts: RequestInit = {}): Promise
     }
   }
   const text = await res.text();
-  const json = text ? (JSON.parse(text) as unknown) : null;
+  let json: unknown = null;
+  if (text) {
+    try {
+      json = JSON.parse(text) as unknown;
+    } catch {
+      json = null;
+    }
+  }
 
   if (!res.ok) {
     const msg =
@@ -88,7 +95,7 @@ export async function apiDownload(path: string, filename: string): Promise<void>
       const token = await auth.currentUser?.getIdToken();
       if (token) headers.set('Authorization', `Bearer ${token}`);
     } catch {
-      return;
+      throw new Error('Authentication is unavailable');
     }
   }
   const res = await fetch(resolveRequestUrl(path), { headers, cache: 'no-store' });

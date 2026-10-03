@@ -16,6 +16,7 @@ from datetime import date, datetime, timedelta, timezone
 
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, File, HTTPException, Request, UploadFile
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, Response
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -85,6 +86,10 @@ def ok(data, **extra):
     payload = {"success": True, "data": data}
     payload.update(extra)
     return payload
+
+
+def audit_fingerprint(value: str) -> str:
+    return hashlib.sha256(value.encode("utf-8")).hexdigest()[:16]
 
 
 def _load_seed_documents() -> None:
@@ -332,6 +337,8 @@ def _sync_local_folder(connector: dict) -> dict:
     current: set[str] = set()
     errors: list[str] = []
     for path in sorted(root.rglob("*")):
+        if path.is_symlink():
+            continue
         if not supported_path(path) or any(part.startswith(".") for part in path.relative_to(root).parts):
             continue
         source = f"{connector_id}__{path.relative_to(root).as_posix().replace('/', '__')}"
@@ -359,8 +366,8 @@ def _sync_local_folder(connector: dict) -> dict:
             )
             current.add(source)
         except Exception as exc:
-            logger.warning("Connector source indexing failed for %s", path.name)
-            errors.append(f"{path.name}: source could not be indexed")
+            logger.warning("Connector source indexing failed")
+            errors.append("Source could not be indexed")
     removed, quarantined, quarantined_sources = _reconcile_connector_sources(connector, previous, current, errors)
     updated = connector_store.update(connector_id, {
         "last_attempt_at": datetime.now(timezone.utc).isoformat(),
@@ -410,8 +417,8 @@ def _sync_remote_connector(connector: dict) -> dict:
             )
             current.add(source)
         except Exception:
-            logger.warning("Remote connector source indexing failed for %s", item.get("name"))
-            errors.append(f"{item.get('name', 'source')}: source could not be indexed")
+            logger.warning("Remote connector source indexing failed")
+            errors.append("Source could not be indexed")
     removed, quarantined, quarantined_sources = _reconcile_connector_sources(connector, previous, current, errors)
     updated = connector_store.update(connector_id, {
         "last_attempt_at": datetime.now(timezone.utc).isoformat(),
@@ -728,13 +735,26 @@ async def http_exception_handler(_request: Request, exc: HTTPException):
     return JSONResponse(status_code=exc.status_code, content={"success": False, "error": message})
 
 
+@app.exception_handler(RequestValidationError)
+async def request_validation_handler(_request: Request, exc: RequestValidationError):
+    messages = []
+    for error in exc.errors():
+        location = ".".join(str(part) for part in error.get("loc", ()) if part != "body")
+        message = str(error.get("msg") or "Invalid value")
+        messages.append(f"{location}: {message}" if location else message)
+    return JSONResponse(
+        status_code=422,
+        content={"success": False, "error": "; ".join(messages)[:500] or "Invalid request"},
+    )
+
+
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(_request: Request, exc: Exception):
     logger.exception("Unhandled request error", exc_info=exc)
     return JSONResponse(status_code=500, content={"success": False, "error": "Internal server error"})
 
 
-@app.get("/")
+@app.get("/", dependencies=[Depends(verify_api_key)])
 async def root():
     return {
         "name": "orgchai-api",
@@ -744,7 +764,7 @@ async def root():
     }
 
 
-@app.get("/api/health")
+@app.get("/api/health", dependencies=[Depends(verify_api_key)])
 @limiter.limit("60/minute")
 async def health(request: Request):
     db_ok = False
@@ -785,7 +805,12 @@ async def create_backup(user: CurrentUser = Depends(get_current_user)):
 
 @app.post("/api/users", dependencies=[Depends(verify_api_key)])
 async def create_or_update_user(request: Request, token_user: CurrentUser = Depends(get_current_user)):
-    body = await request.json()
+    try:
+        body = await request.json()
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail="Invalid JSON") from exc
+    if not isinstance(body, dict):
+        raise HTTPException(status_code=400, detail="Request body must be an object")
     uid = body.get("uid")
     email = token_user.email
     display_name = token_user.display_name
@@ -1068,8 +1093,8 @@ async def delete_user_data(body: DeleteUserDataRequest, user: CurrentUser = Depe
     })
 
 
-@app.get("/api/slack/status")
-async def get_slack_status():
+@app.get("/api/slack/status", dependencies=[Depends(verify_api_key)])
+async def get_slack_status(_user: CurrentUser = Depends(get_current_user)):
     from opsmate.slack_bot import slack_status
 
     return ok(slack_status())
@@ -1160,6 +1185,9 @@ async def slack_events(req: Request):
         payload = _json.loads(body)
     except Exception:
         return JSONResponse({"success": False, "error": "Invalid JSON"}, status_code=400)
+
+    if not isinstance(payload, dict):
+        return JSONResponse({"success": False, "error": "Invalid event payload"}, status_code=400)
 
     if payload.get("type") == "url_verification":
         return JSONResponse({"challenge": payload.get("challenge", "")})
@@ -1356,7 +1384,7 @@ async def search_sources(body: SearchRequest, user: CurrentUser = Depends(get_cu
             seen_sources.add(source.source)
             unique_candidates.append(source)
     candidates = unique_candidates[:body.top_k]
-    knowledge_store.add_audit("search", actor=user.email, detail=body.query)
+    knowledge_store.add_audit("search", actor=user.email, detail=audit_fingerprint(body.query))
     return ok({
         "query": body.query,
         "results": [_source_payload(source) for source in candidates],
@@ -1390,7 +1418,7 @@ async def search_people(user: CurrentUser = Depends(get_current_user), q: str = 
             })
             if source not in entry["sources"]:
                 entry["sources"].append(source)
-    knowledge_store.add_audit("people_search", actor=user.email, detail=query)
+    knowledge_store.add_audit("people_search", actor=user.email, detail=audit_fingerprint(query))
     return ok(sorted(people.values(), key=lambda person: person["name"].lower()))
 
 
@@ -1534,17 +1562,31 @@ async def ingest_file(file: UploadFile = File(...), user: CurrentUser = Depends(
     require_role(user, "knowledge_owner")
     if not file.filename:
         raise HTTPException(status_code=400, detail="No filename provided")
-    extension = Path(file.filename).suffix.lower()
+    safe_filename = Path(file.filename).name
+    if len(safe_filename) > 255:
+        raise HTTPException(status_code=400, detail="Filename is too long")
+    extension = Path(safe_filename).suffix.lower()
     if extension not in SUPPORTED_EXTENSIONS:
         raise HTTPException(status_code=400, detail="Supported formats: TXT, Markdown, HTML, CSV, TSV, RTF, DOCX, XLSX, PPTX, PDF, and common raster images")
 
-    content = await file.read()
+    max_upload_bytes = 25 * 1024 * 1024
+    chunks: list[bytes] = []
+    total_bytes = 0
+    while True:
+        chunk = await file.read(min(1024 * 1024, max_upload_bytes - total_bytes + 1))
+        if not chunk:
+            break
+        total_bytes += len(chunk)
+        if total_bytes > max_upload_bytes:
+            raise HTTPException(status_code=413, detail="Uploaded file is too large")
+        chunks.append(chunk)
+    content = b"".join(chunks)
     text = extract_text(content, extension)
     processed_text, dlp_report = process_text(text, _dlp_action())
     if dlp_report["blocked"]:
         raise HTTPException(status_code=400, detail="Source blocked by the configured data-loss prevention policy")
 
-    dest = DOCS_DIR / Path(file.filename).name
+    dest = DOCS_DIR / safe_filename
     text_extensions = {".txt", ".md", ".markdown", ".html", ".htm", ".csv", ".tsv", ".rtf"}
     if extension in OCR_EXTENSIONS:
         if dlp_report["action"] != "redact":
@@ -1568,10 +1610,13 @@ async def ingest_file(file: UploadFile = File(...), user: CurrentUser = Depends(
 @app.delete("/api/documents/{filename}", dependencies=[Depends(verify_api_key)])
 async def delete_document(filename: str, user: CurrentUser = Depends(get_current_user)):
     require_role(user, "knowledge_owner")
-    path = DOCS_DIR / Path(filename).name
-    removed = retriever.remove_source(filename)
-    knowledge_store.remove_document(filename)
-    knowledge_store.add_audit("source_delete", actor=user.email, detail=filename)
+    safe_name = Path(filename).name
+    if safe_name != filename or not safe_name:
+        raise HTTPException(status_code=400, detail="Invalid filename")
+    path = DOCS_DIR / safe_name
+    removed = retriever.remove_source(safe_name)
+    knowledge_store.remove_document(safe_name)
+    knowledge_store.add_audit("source_delete", actor=user.email, detail=safe_name)
     file_deleted = False
     paths = [path]
     if path.suffix.lower() in OCR_EXTENSIONS:
@@ -1586,7 +1631,7 @@ async def delete_document(filename: str, user: CurrentUser = Depends(get_current
     if removed == 0 and not file_deleted:
         raise HTTPException(status_code=404, detail="Document not found")
     return ok({
-        "filename": filename,
+        "filename": safe_name,
         "chunks_removed": removed,
         "file_deleted": file_deleted,
         "total_chunks": len(retriever.chunks),
@@ -1993,7 +2038,7 @@ async def sync_connector(connector_id: str, user: CurrentUser = Depends(get_curr
     if connector.get("status") == "paused":
         raise HTTPException(status_code=409, detail="Connector is paused")
     try:
-        result = _sync_connector_with_retries(connector)
+        result = await asyncio.to_thread(_sync_connector_with_retries, connector)
     except RuntimeError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     knowledge_store.add_audit("connector_sync", actor=user.email, detail=connector_id)
@@ -2053,7 +2098,7 @@ async def send_chat_message(
 
     context = _conversation_context(chat)
     chat_store.add_message(chat_id, "user", body.question, user_id=user.uid)
-    knowledge_store.add_audit("search", actor=user.email, detail=body.question)
+    knowledge_store.add_audit("search", actor=user.email, detail=audit_fingerprint(body.question))
 
     context_sources = [source for source in body.context_sources if _source_access_allowed(source, user)]
     contextual_query = discovery_store.expand_query(body.question)
@@ -2133,7 +2178,7 @@ async def delete_all_chats(body: DeleteChatsRequest, user: CurrentUser = Depends
 @app.post("/api/ask", dependencies=[Depends(verify_api_key)])
 async def ask(body: AskRequest, _user: CurrentUser = Depends(get_current_user)):
     started_at = time.monotonic()
-    knowledge_store.add_audit("search", actor=_user.email, detail=body.question)
+    knowledge_store.add_audit("search", actor=_user.email, detail=audit_fingerprint(body.question))
     allowed_sources = _retrieval_allowed_sources(_user)
     sources = _eligible_sources(retriever.search(discovery_store.expand_query(body.question), top_k=body.top_k, allowed_sources=allowed_sources), _user.email, _user.is_admin)
     if body.generate:

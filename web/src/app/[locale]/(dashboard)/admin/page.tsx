@@ -1,18 +1,23 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useAuth } from '@/lib/auth/AuthProvider';
 import { apiDownload } from '@/lib/api';
 import { AdminPolicy, DocumentRecord, RetentionPolicy, useActionProposals, useAnalytics, useApplyRetentionPolicy, useAudit, useBackups, useCollections, useConnectors, useCreateBackup, useCreateCollection, useCreateConnector, useCreateEvaluationCase, useDecideActionProposal, useDeleteDirectoryUser, useDirectoryUsers, useDocuments, useEvaluations, useGlossary, useHealth, useMcpCapabilities, useMcpToolCheck, usePolicies, useReviews, useRunEvaluations, useSaveGlossary, useSourceHealth, useSyncConnector, useUpdateAdminPolicy, useUpdateConnector, useUpdateDlpPolicy, useUpdateDocumentMetadata, useUpdateReview, useUpdateRetentionPolicy, useUpsertDirectoryUser } from '@/lib/query/hooks';
 
 export default function AdminPage() {
   const t = useTranslations('admin');
+  const locale = useLocale();
   const { user, isAdmin, role } = useAuth();
   const [downloadStatus, setDownloadStatus] = useState<string | null>(null);
   const [retentionStatus, setRetentionStatus] = useState<string | null>(null);
   const [dlpStatus, setDlpStatus] = useState<string | null>(null);
   const [adminPolicyStatus, setAdminPolicyStatus] = useState<string | null>(null);
+  const [evaluationStatus, setEvaluationStatus] = useState<string | null>(null);
+  const [discoveryStatus, setDiscoveryStatus] = useState<string | null>(null);
+  const [evaluationRunStatus, setEvaluationRunStatus] = useState<string | null>(null);
+  const [reviewStatus, setReviewStatus] = useState<string | null>(null);
   const [dlpAction, setDlpAction] = useState<'flag' | 'redact' | 'block'>('flag');
   const [adminPolicy, setAdminPolicy] = useState<AdminPolicy>({ approved_connector_kinds: ['local_folder', 'google_drive', 'sharepoint', 'rest_api'], approved_models: [], web_access: 'disabled', allowed_data_classes: ['internal', 'personal', 'restricted'], allowed_tools: ['search', 'source_preview', 'draft_actions'], action_scopes: ['draft_follow_up', 'draft_incident_summary', 'draft_onboarding_plan', 'draft_it_access_request', 'draft_policy_acknowledgement', 'draft_support_reply'] });
   const [retentionConfirmation, setRetentionConfirmation] = useState('');
@@ -72,6 +77,17 @@ export default function AdminPage() {
   const evaluations = useEvaluations(canEvaluate);
   const createEvaluationCase = useCreateEvaluationCase();
   const runEvaluations = useRunEvaluations();
+  const formatDate = (value: string) => new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
+
+  const runEvaluation = async () => {
+    setEvaluationRunStatus(null);
+    try {
+      await runEvaluations.mutateAsync();
+      setEvaluationRunStatus(t('evaluationRunSuccess'));
+    } catch {
+      setEvaluationRunStatus(t('evaluationRunError'));
+    }
+  };
 
   useEffect(() => {
     if (policies.data?.retention) setRetentionValues(policies.data.retention);
@@ -133,7 +149,7 @@ export default function AdminPage() {
         </div>
         <div className="border p-4">
           <p className="text-sm text-muted-foreground">{t('db')}</p>
-          <p className="mt-1 text-2xl font-bold">{health.data?.db ? 'ok' : 'offline'}</p>
+          <p className="mt-1 text-2xl font-bold">{health.data?.db ? t('databaseOk') : t('databaseOffline')}</p>
         </div>
       </div>
       <section className="mt-10">
@@ -163,14 +179,15 @@ export default function AdminPage() {
                   <p className="mt-2 text-sm text-muted-foreground">{review.answer}</p>
                 </div>
                 <div className="flex gap-2">
-                  <button type="button" className="border px-3 py-1 text-xs hover:bg-muted" onClick={() => updateReview.mutate({ id: review.id, status: 'in_review' })}>{t('startReview')}</button>
-                  <button type="button" className="border px-3 py-1 text-xs hover:bg-muted" onClick={() => updateReview.mutate({ id: review.id, status: 'resolved' })}>{t('resolve')}</button>
-                  <button type="button" className="border px-3 py-1 text-xs hover:bg-muted" onClick={() => updateReview.mutate({ id: review.id, status: 'dismissed' })}>{t('dismiss')}</button>
+                  <button type="button" disabled={updateReview.isPending} className="border px-3 py-1 text-xs hover:bg-muted disabled:opacity-50" onClick={() => { setReviewStatus(null); updateReview.mutate({ id: review.id, status: 'in_review' }, { onError: () => setReviewStatus(t('reviewUpdateError')) }); }}>{t('startReview')}</button>
+                  <button type="button" disabled={updateReview.isPending} className="border px-3 py-1 text-xs hover:bg-muted disabled:opacity-50" onClick={() => { setReviewStatus(null); updateReview.mutate({ id: review.id, status: 'resolved' }, { onError: () => setReviewStatus(t('reviewUpdateError')) }); }}>{t('resolve')}</button>
+                  <button type="button" disabled={updateReview.isPending} className="border px-3 py-1 text-xs hover:bg-muted disabled:opacity-50" onClick={() => { setReviewStatus(null); updateReview.mutate({ id: review.id, status: 'dismissed' }, { onError: () => setReviewStatus(t('reviewUpdateError')) }); }}>{t('dismiss')}</button>
                 </div>
               </div>
             </article>
           ))}
           {(reviews.data ?? []).filter((review) => review.status !== 'dismissed').length === 0 ? <p className="text-sm text-muted-foreground">{t('noReviews')}</p> : null}
+          {reviewStatus ? <p role="alert" className="text-sm text-red-700">{reviewStatus}</p> : null}
         </div>
       </section>
       <section className="mt-10 border p-4">
@@ -183,28 +200,43 @@ export default function AdminPage() {
       <section className="mt-10 border p-4">
         <h2 className="text-xl font-semibold">{t('evaluationTitle')}</h2>
         <p className="mt-1 text-sm text-muted-foreground">{t('evaluationHint')}</p>
-        <form className="mt-4 grid gap-2 sm:grid-cols-3" onSubmit={(event) => {
+        <form className="mt-4 grid gap-2 sm:grid-cols-3" onSubmit={async (event) => {
           event.preventDefault();
-          const form = new FormData(event.currentTarget);
-          createEvaluationCase.mutate({ title: String(form.get('evaluationTitle') || ''), question: String(form.get('evaluationQuestion') || ''), expectedSources: String(form.get('evaluationSources') || '').split(',').map((source) => source.trim()).filter(Boolean), language: String(form.get('evaluationLanguage') || 'default') as 'default' | 'en' | 'ja' });
-          event.currentTarget.reset();
+          const formElement = event.currentTarget;
+          const form = new FormData(formElement);
+          setEvaluationStatus(null);
+          try {
+            await createEvaluationCase.mutateAsync({ title: String(form.get('evaluationTitle') || ''), question: String(form.get('evaluationQuestion') || ''), expectedSources: String(form.get('evaluationSources') || '').split(',').map((source) => source.trim()).filter(Boolean), language: String(form.get('evaluationLanguage') || 'default') as 'default' | 'en' | 'ja' });
+            formElement.reset();
+            setEvaluationStatus(t('evaluationSaved'));
+          } catch {
+            setEvaluationStatus(t('evaluationSaveError'));
+          }
         }}>
           <input name="evaluationTitle" required placeholder={t('evaluationCaseTitle')} className="border bg-background px-2 py-2 text-sm" />
           <input name="evaluationQuestion" required placeholder={t('evaluationQuestion')} className="border bg-background px-2 py-2 text-sm" />
           <input name="evaluationSources" placeholder={t('evaluationSources')} className="border bg-background px-2 py-2 text-sm" />
           <select name="evaluationLanguage" aria-label={t('evaluationLanguage')} defaultValue="default" className="border bg-background px-2 py-2 text-sm"><option value="default">{t('languageDefault')}</option><option value="en">{t('languageEnglish')}</option><option value="ja">{t('languageJapanese')}</option></select>
           <button type="submit" className="border px-3 py-2 text-sm hover:bg-muted sm:col-span-3">{t('addEvaluation')}</button>
+          {evaluationStatus ? <p role="status" className="text-sm text-muted-foreground sm:col-span-3">{evaluationStatus}</p> : null}
         </form>
-        <div className="mt-3 flex flex-wrap items-center gap-3"><span className="text-sm">{t('evaluationCases')}: {evaluations.data?.cases.length ?? 0}</span><button type="button" className="border px-3 py-1 text-xs hover:bg-muted" onClick={() => runEvaluations.mutate()}>{t('runEvaluation')}</button>{evaluations.data?.runs[0] ? <><span className="text-sm text-muted-foreground">{t('hitRate')}: {(evaluations.data.runs[0].hit_rate * 100).toFixed(0)}% · MRR: {evaluations.data.runs[0].mean_reciprocal_rank.toFixed(2)} · {evaluations.data.runs[0].model || t('notConfigured')} · {evaluations.data.runs[0].prompt_version || t('notConfigured')}</span>{Object.entries(evaluations.data.runs[0].by_language ?? {}).map(([language, metrics]) => <span key={language} className="text-xs text-muted-foreground">{language}: {(metrics.hit_rate * 100).toFixed(0)}% / {metrics.mean_reciprocal_rank.toFixed(2)} MRR</span>)}</> : null}</div>
+        <div className="mt-3 flex flex-wrap items-center gap-3"><span className="text-sm">{t('evaluationCases')}: {evaluations.data?.cases.length ?? 0}</span><button type="button" className="border px-3 py-1 text-xs hover:bg-muted disabled:opacity-50" onClick={() => void runEvaluation()} disabled={runEvaluations.isPending}>{t('runEvaluation')}</button>{evaluationRunStatus ? <span role={runEvaluations.isError ? 'alert' : 'status'} className="text-xs text-muted-foreground">{evaluationRunStatus}</span> : null}{evaluations.data?.runs[0] ? <><span className="text-sm text-muted-foreground">{t('hitRate')}: {(evaluations.data.runs[0].hit_rate * 100).toFixed(0)}% · MRR: {evaluations.data.runs[0].mean_reciprocal_rank.toFixed(2)} · {evaluations.data.runs[0].model || t('notConfigured')} · {evaluations.data.runs[0].prompt_version || t('notConfigured')}</span>{Object.entries(evaluations.data.runs[0].by_language ?? {}).map(([language, metrics]) => <span key={language} className="text-xs text-muted-foreground">{language}: {(metrics.hit_rate * 100).toFixed(0)}% / {metrics.mean_reciprocal_rank.toFixed(2)} MRR</span>)}</> : null}</div>
       </section>
       <section className="mt-10 border p-4">
         <h2 className="text-xl font-semibold">{t('discoveryTitle')}</h2>
         <p className="mt-1 text-sm text-muted-foreground">{t('discoveryHint')}</p>
-        <form className="mt-4 grid gap-2 sm:grid-cols-2" onSubmit={(event) => {
+        <form className="mt-4 grid gap-2 sm:grid-cols-2" onSubmit={async (event) => {
           event.preventDefault();
-          const form = new FormData(event.currentTarget);
-          createCollection.mutate({ name: String(form.get('collectionName') || ''), description: String(form.get('collectionDescription') || ''), sourceIds: String(form.get('collectionSources') || '').split(',').map((source) => source.trim()).filter(Boolean), authoritative: form.get('authoritative') === 'on', boost: Number(form.get('boost') || 0) });
-          event.currentTarget.reset();
+          const formElement = event.currentTarget;
+          const form = new FormData(formElement);
+          setDiscoveryStatus(null);
+          try {
+            await createCollection.mutateAsync({ name: String(form.get('collectionName') || ''), description: String(form.get('collectionDescription') || ''), sourceIds: String(form.get('collectionSources') || '').split(',').map((source) => source.trim()).filter(Boolean), authoritative: form.get('authoritative') === 'on', boost: Number(form.get('boost') || 0) });
+            formElement.reset();
+            setDiscoveryStatus(t('collectionSaved'));
+          } catch {
+            setDiscoveryStatus(t('collectionSaveError'));
+          }
         }}>
           <input name="collectionName" required placeholder={t('collectionName')} className="border bg-background px-2 py-2 text-sm" />
           <input name="collectionDescription" placeholder={t('collectionDescription')} className="border bg-background px-2 py-2 text-sm" />
@@ -214,17 +246,25 @@ export default function AdminPage() {
           <button type="submit" className="border px-3 py-2 text-sm hover:bg-muted">{t('addCollection')}</button>
         </form>
         <div className="mt-4 space-y-2 text-sm">{(collections.data ?? []).map((collection) => <div key={collection.id} className="border px-3 py-2">{collection.name} · {collection.source_ids.length} {t('sourcesCount')}{collection.authoritative ? ` · ${t('authoritative')}` : ''}</div>)}</div>
-        <form className="mt-5 grid gap-2 sm:grid-cols-3" onSubmit={(event) => {
+        <form className="mt-5 grid gap-2 sm:grid-cols-3" onSubmit={async (event) => {
           event.preventDefault();
-          const form = new FormData(event.currentTarget);
-          saveGlossary.mutate({ term: String(form.get('term') || ''), synonyms: String(form.get('synonyms') || '').split(',').map((term) => term.trim()).filter(Boolean), definition: String(form.get('definition') || '') });
-          event.currentTarget.reset();
+          const formElement = event.currentTarget;
+          const form = new FormData(formElement);
+          setDiscoveryStatus(null);
+          try {
+            await saveGlossary.mutateAsync({ term: String(form.get('term') || ''), synonyms: String(form.get('synonyms') || '').split(',').map((term) => term.trim()).filter(Boolean), definition: String(form.get('definition') || '') });
+            formElement.reset();
+            setDiscoveryStatus(t('glossarySaved'));
+          } catch {
+            setDiscoveryStatus(t('glossarySaveError'));
+          }
         }}>
           <input name="term" required placeholder={t('glossaryTerm')} className="border bg-background px-2 py-2 text-sm" />
           <input name="synonyms" placeholder={t('glossarySynonyms')} className="border bg-background px-2 py-2 text-sm" />
           <input name="definition" placeholder={t('glossaryDefinition')} className="border bg-background px-2 py-2 text-sm" />
           <button type="submit" className="border px-3 py-2 text-sm hover:bg-muted sm:col-span-3">{t('saveGlossary')}</button>
         </form>
+        {discoveryStatus ? <p role={createCollection.isError || saveGlossary.isError ? 'alert' : 'status'} className="mt-2 text-sm text-muted-foreground">{discoveryStatus}</p> : null}
         <div className="mt-3 text-xs text-muted-foreground">{(glossary.data ?? []).map((term) => `${term.term}: ${term.synonyms.join(', ')}`).join(' · ')}</div>
       </section>
       <section className="mt-10 border p-4">
@@ -260,7 +300,7 @@ export default function AdminPage() {
           <span className="text-muted-foreground">{t('backupRetention')}: {backups.data?.retention_count ?? '7'}</span>
           <button type="button" className="border px-3 py-1 text-xs hover:bg-muted" onClick={() => createBackup.mutate()} disabled={!backups.data?.configured || createBackup.isPending}>{t('createBackup')}</button>
         </div>
-        {backups.data?.records[0] ? <p role="status" className="mt-2 text-xs text-muted-foreground">{t('lastBackup')}: {backups.data.records[0].filename} · {new Date(backups.data.records[0].verified_at).toLocaleString()}</p> : null}
+        {backups.data?.records[0] ? <p role="status" className="mt-2 text-xs text-muted-foreground">{t('lastBackup')}: {backups.data.records[0].filename} · {formatDate(backups.data.records[0].verified_at)}</p> : null}
         {createBackup.isError ? <p role="alert" className="mt-2 text-xs text-red-700">{t('backupFailed')}</p> : null}
       </section>
       <section className="mt-10 border p-4">
@@ -307,7 +347,7 @@ export default function AdminPage() {
         <div className="mt-4 space-y-2">
           {(connectors.data ?? []).map((connector) => (
             <div key={connector.id} className="flex flex-wrap items-center justify-between gap-3 border px-3 py-2 text-sm">
-              <div><p className="font-medium">{connector.name}</p><p className="text-xs text-muted-foreground">{connector.kind} · {connector.status} · {connector.indexed_sources?.length ?? 0} {t('indexed')} · {connector.stale_count ?? 0} {t('stale')} · {connector.failure_count ?? 0} {t('failures')}</p><p className="text-xs text-muted-foreground">{t('retryPolicy')}: {connector.retry_limit ?? 3} · {t('retryBackoffSeconds')}: {connector.retry_backoff_seconds ?? 5} · {t('retryCount')}: {connector.retry_count ?? 0}</p>{connector.contract ? <p className="max-w-3xl text-xs text-muted-foreground">{t('connectorContract')}: v{connector.contract.version} · {connector.contract.authentication.mode} · OAuth {connector.contract.authentication.oauth_status ?? (connector.kind === 'local_folder' ? 'not_applicable' : 'unknown')} · consent {connector.contract.authentication.admin_consent ?? (connector.kind === 'local_folder' ? 'not_applicable' : 'unknown')} · scope {connector.contract.crawl_scope.selection_status ?? (connector.kind === 'local_folder' && connector.contract.crawl_scope.root_path_configured ? 'selected' : 'action_required')} · {connector.contract.incremental.strategy} · {connector.contract.deletion.strategy} · {connector.contract.deletion.quarantined_count} {t('quarantined')} · {t('freshnessTarget')}: {connector.contract.deletion.freshness_target_seconds != null ? `${connector.contract.deletion.freshness_target_seconds}s` : t('manual')} · ACL {connector.contract.permissions.enforced_at.join(', ')} · {connector.contract.source_metadata.length} {t('metadataFields')} · {connector.contract.identities.directory_mapping ? t('identityMappingSupported') : t('identityMappingUnavailable')}</p> : null}{connector.last_success_at ? <p className="text-xs text-muted-foreground">{t('lastSuccess')}: {new Date(connector.last_success_at).toLocaleString()}</p> : null}{connector.last_sync_duration_ms != null ? <p className="text-xs text-muted-foreground">{connector.last_sync_duration_ms} ms</p> : null}{connector.last_error ? <p className="text-xs text-red-700">{connector.last_error}</p> : null}</div>
+          <div><p className="font-medium">{connector.name}</p><p className="text-xs text-muted-foreground">{connector.kind} · {connector.status} · {connector.indexed_sources?.length ?? 0} {t('indexed')} · {connector.stale_count ?? 0} {t('stale')} · {connector.failure_count ?? 0} {t('failures')}</p><p className="text-xs text-muted-foreground">{t('retryPolicy')}: {connector.retry_limit ?? 3} · {t('retryBackoffSeconds')}: {connector.retry_backoff_seconds ?? 5} · {t('retryCount')}: {connector.retry_count ?? 0}</p>{connector.contract ? <p className="max-w-3xl text-xs text-muted-foreground">{t('connectorContract')}: v{connector.contract.version} · {connector.contract.authentication.mode} · OAuth {connector.contract.authentication.oauth_status ?? (connector.kind === 'local_folder' ? 'not_applicable' : 'unknown')} · consent {connector.contract.authentication.admin_consent ?? (connector.kind === 'local_folder' ? 'not_applicable' : 'unknown')} · scope {connector.contract.crawl_scope.selection_status ?? (connector.kind === 'local_folder' && connector.contract.crawl_scope.root_path_configured ? 'selected' : 'action_required')} · {connector.contract.incremental.strategy} · {connector.contract.deletion.strategy} · {connector.contract.deletion.quarantined_count} {t('quarantined')} · {t('freshnessTarget')}: {connector.contract.deletion.freshness_target_seconds != null ? `${connector.contract.deletion.freshness_target_seconds}s` : t('manual')} · ACL {connector.contract.permissions.enforced_at.join(', ')} · {connector.contract.source_metadata.length} {t('metadataFields')} · {connector.contract.identities.directory_mapping ? t('identityMappingSupported') : t('identityMappingUnavailable')}</p> : null}{connector.last_success_at ? <p className="text-xs text-muted-foreground">{t('lastSuccess')}: {formatDate(connector.last_success_at)}</p> : null}{connector.last_sync_duration_ms != null ? <p className="text-xs text-muted-foreground">{connector.last_sync_duration_ms} ms</p> : null}{connector.last_error ? <p className="text-xs text-red-700">{connector.last_error}</p> : null}</div>
               {canManageConnectors ? <div className="flex flex-wrap gap-2"><button type="button" className="border px-3 py-1 text-xs hover:bg-muted" onClick={() => syncConnector.mutate(connector.id)} disabled={connector.status === 'paused'}>{t('syncNow')}</button><button type="button" className="border px-3 py-1 text-xs hover:bg-muted" onClick={() => updateConnector.mutate({ id: connector.id, status: connector.status === 'active' ? 'paused' : 'active' })}>{connector.status === 'active' ? t('pause') : t('resume')}</button><form className="flex gap-1" onSubmit={(event) => { event.preventDefault(); const form = new FormData(event.currentTarget); updateConnector.mutate({ id: connector.id, retryLimit: Number(form.get('retryLimit') || 0), retryBackoffSeconds: Number(form.get('retryBackoffSeconds') || 0) }); }}><input name="retryLimit" aria-label={t('retryLimit')} type="number" min="0" max="5" defaultValue={connector.retry_limit ?? 3} className="w-16 border px-1 py-1 text-xs" /><input name="retryBackoffSeconds" aria-label={t('retryBackoffSeconds')} type="number" min="0" max="3600" defaultValue={connector.retry_backoff_seconds ?? 5} className="w-20 border px-1 py-1 text-xs" /><button type="submit" className="border px-2 py-1 text-xs hover:bg-muted">{t('saveRetryPolicy')}</button></form></div> : null}
             </div>
           ))}
@@ -324,7 +364,7 @@ export default function AdminPage() {
         <div className="mt-3 space-y-2 text-sm">
           {(audit.data ?? []).slice(0, 20).map((entry) => (
             <div key={entry.id} className="flex flex-wrap justify-between gap-2 border-b pb-2">
-              <span>{entry.event}</span><span className="text-muted-foreground">{entry.actor || t('systemActor')} · {new Date(entry.created_at).toLocaleString()}</span>
+              <span>{entry.event}</span><span className="text-muted-foreground">{entry.actor || t('systemActor')} · {formatDate(entry.created_at)}</span>
             </div>
           ))}
           {(audit.data ?? []).length === 0 ? <p className="text-muted-foreground">{t('noAudit')}</p> : null}

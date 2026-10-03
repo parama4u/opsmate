@@ -41,6 +41,16 @@ def _chunk_text(text: str, source: str, max_chunk_size: int = 512, overlap: int 
                 sentences = re.split(r"(?<=[.!?]) +", current)
                 current = ""
                 for sentence in sentences:
+                    if len(sentence) > max_chunk_size:
+                        if current:
+                            chunks.append(DocumentChunk(text=current.strip(), source=source))
+                            current = ""
+                        chunks.extend(
+                            DocumentChunk(text=sentence[start:start + max_chunk_size].strip(), source=source)
+                            for start in range(0, len(sentence), max_chunk_size)
+                            if sentence[start:start + max_chunk_size].strip()
+                        )
+                        continue
                     if len(current) + len(sentence) < max_chunk_size:
                         current += (" " if current else "") + sentence
                     else:
@@ -83,7 +93,7 @@ class VectorRetriever:
             self._conn = psycopg2.connect(self.db_url)
             self._conn.autocommit = True
             register_vector(self._conn)
-            logger.info("Connected to PostgreSQL at %s", self.db_url)
+            logger.info("Connected to PostgreSQL")
 
             from sentence_transformers import SentenceTransformer
             self._model = SentenceTransformer(self.model_name)

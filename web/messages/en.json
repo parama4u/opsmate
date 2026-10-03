@@ -7,6 +7,7 @@
     "signingIn": "Opening sign-in...",
     "signInError": "Sign-in could not be completed. Check your Firebase configuration and try again.",
     "signOut": "Sign out",
+    "signOutError": "Sign out could not be completed. Try again.",
     "languageSwitcher": "Language",
     "languageEnglish": "English",
     "languageJapanese": "Japanese",
@@ -138,8 +139,22 @@
       "admin": "Admin"
     }
   },
+  "seo": {
+    "sourceBackedAnswers": "Source-backed answers",
+    "whyTeamsUseIt": "Why teams use it",
+    "pilotPlan": "Pilot plan",
+    "focusedFit": "A focused fit",
+    "commonQuestions": "Common questions",
+    "buyersWantToKnow": "What buyers want to know",
+    "focusedSourceSet": "Start with a focused source set"
+  },
   "chat": {
     "newChat": "New chat",
+    "deleteChat": "Delete chat",
+    "deleteDocument": "Delete document",
+    "uploadFailed": "The document could not be uploaded. Try again.",
+    "sendMessage": "Send message",
+    "actionFailed": "The action could not be completed. Try again.",
     "workspaceLabel": "Workspace",
     "knowledgeBase": "Knowledge base",
     "indexedSources": "{count, plural, =0 {No indexed sources} one {# indexed source} other {# indexed sources}}",
@@ -244,11 +259,15 @@
     ,"exportTitle": "Export my data"
     ,"exportDescription": "Download your chats, feedback, saved searches, and action proposals as a JSON file."
     ,"exportButton": "Export data"
+    ,"exportPending": "Preparing export..."
+    ,"exportSuccess": "Your export is ready."
+    ,"exportError": "The export could not be prepared. Try again."
     ,"deleteDataTitle": "Delete all personal data"
     ,"deleteDataDescription": "This removes your chats, feedback, saved searches, reviews, and action proposals. Type DELETE MY DATA to confirm."
     ,"deleteDataConfirmation": "Type DELETE MY DATA"
     ,"deleteDataButton": "Delete my data"
     ,"deleteDataComplete": "Your personal data was deleted."
+    ,"deleteError": "The deletion could not be completed. Try again."
   },
   "admin": {
     "title": "Admin",
@@ -257,6 +276,8 @@
     "chunks": "Indexed chunks",
     "docs": "Documents",
     "db": "Database",
+    "databaseOk": "Connected",
+    "databaseOffline": "Unavailable",
     "qualityTitle": "Answer quality",
     "feedback": "Feedback received",
     "openReviews": "Open reviews",
@@ -276,6 +297,15 @@
     "resolve": "Resolve",
     "dismiss": "Dismiss",
     "noReviews": "No review items need attention.",
+    "evaluationSaved": "Evaluation case saved.",
+    "evaluationSaveError": "The evaluation case could not be saved. Try again.",
+    "evaluationRunSuccess": "Evaluation run completed.",
+    "evaluationRunError": "The evaluation run could not be completed. Try again.",
+    "collectionSaved": "Collection saved.",
+    "collectionSaveError": "The collection could not be saved. Try again.",
+    "glossarySaved": "Glossary term saved.",
+    "glossarySaveError": "The glossary term could not be saved. Try again.",
+    "reviewUpdateError": "The review could not be updated. Try again.",
     "owner": "Owner",
     "subjectMatterExpert": "Subject-matter expert",
     "allowedEmails": "Allowed emails, comma-separated",

@@ -18,11 +18,13 @@ Required environment variables:
 """
 
 import logging
+import hashlib
 import os
 import re
 import time
 from datetime import date
 from typing import Optional
+from urllib.parse import urlparse
 
 from slack_bolt import App as SlackApp
 from slack_bolt.adapter.socket_mode import SocketModeHandler
@@ -57,7 +59,10 @@ def build_slack_answer(question: str, answer: str, sources) -> str:
         for i, s in enumerate(sources, 1):
             score = f" (relevance: {s.score:.2f})" if s.score is not None else ""
             source_record = knowledge_store.get_document(s.source)
-            link = f" <{source_record['source_url']}|open source>" if source_record.get("source_url") else ""
+            source_url = source_record.get("source_url")
+            parsed_url = urlparse(source_url) if source_url else None
+            safe_url = source_url if parsed_url and parsed_url.scheme in {"http", "https"} and parsed_url.netloc else None
+            link = f" <{safe_url}|open source>" if safe_url else ""
             parts.append(f"* {source_record.get('title') or s.source}{link}{score}")
     return "\n".join(parts)
 
@@ -106,7 +111,7 @@ def answer_question(question: str, top_k: int = 3, user_email: Optional[str] = N
             continue
         eligible.append(source)
     sources = eligible
-    knowledge_store.add_audit("slack_search", actor=user_email, detail=question)
+    knowledge_store.add_audit("slack_search", actor=user_email, detail=hashlib.sha256(question.encode("utf-8")).hexdigest()[:16])
     answer, model = generate_answer(question, sources)
     knowledge_store.add_audit("no_result" if not sources else "answer_generated", actor=user_email, detail=model)
     if model == "fallback":
@@ -228,7 +233,7 @@ def create_slack_app() -> Optional[SlackApp]:
             return
 
         # Acknowledge quickly while we process.
-        logger.info(">>> Acknowledging mention from %s, processing question: %s", user, text[:80])
+        logger.info(">>> Acknowledging mention from %s", user)
         say(text=f"Looking that up for you, <@{user}>...", thread_ts=thread_ts, channel=channel)
 
         try:
@@ -256,7 +261,7 @@ def create_slack_app() -> Optional[SlackApp]:
             return
         thread_ts = message.get("thread_ts") or message.get("ts")
 
-        logger.info(">>> Processing DM question: %s", text[:80])
+        logger.info(">>> Processing DM question")
         say(text="Looking that up...", thread_ts=thread_ts)
         try:
             profile = client.users_info(user=message.get("user", "")).get("user", {}).get("profile", {})

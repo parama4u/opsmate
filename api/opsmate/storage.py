@@ -5,8 +5,10 @@ DATABASE_URL is unset or the database is unavailable.
 """
 
 import json
+import hashlib
 import logging
 import os
+import re
 import uuid
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -85,6 +87,9 @@ class ChatStore:
         }
 
     def _path(self, chat_id: str) -> Path:
+        if not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", chat_id):
+            digest = hashlib.sha256(chat_id.encode("utf-8")).hexdigest()
+            return self.base_dir / "__invalid__" / f"{digest}.json"
         return self.base_dir / f"{chat_id}.json"
 
     def _file_load(self, chat_id: str) -> Optional[dict]:
@@ -97,7 +102,10 @@ class ChatStore:
             return None
 
     def _file_save(self, chat: dict) -> None:
-        self._path(chat["id"]).write_text(json.dumps(chat, ensure_ascii=False, indent=2), encoding="utf-8")
+        path = self._path(chat["id"])
+        temp_path = path.with_suffix(".json.tmp")
+        temp_path.write_text(json.dumps(chat, ensure_ascii=False, indent=2), encoding="utf-8")
+        temp_path.replace(path)
 
     def _owned(self, chat: Optional[dict], user_id: Optional[str]) -> Optional[dict]:
         if chat is None:
@@ -144,8 +152,11 @@ class ChatStore:
                 continue
             if user_id and chat.get("user_id") and chat.get("user_id") != user_id:
                 continue
+            chat_id = chat.get("id")
+            if not isinstance(chat_id, str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", chat_id):
+                continue
             summaries.append({
-                "id": chat["id"],
+                "id": chat_id,
                 "title": chat.get("title", "New chat"),
                 "created_at": chat.get("created_at"),
                 "updated_at": chat.get("updated_at"),

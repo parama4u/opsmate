@@ -16,8 +16,16 @@ function initAdmin() {
 export async function POST(request: NextRequest) {
   try {
     initAdmin();
-    const { idToken } = await request.json();
-    if (!idToken) {
+    let payload: unknown;
+    try {
+      payload = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    }
+    const idToken = payload && typeof payload === 'object' && 'idToken' in payload
+      ? payload.idToken
+      : null;
+    if (typeof idToken !== 'string' || !idToken.trim()) {
       return NextResponse.json({ error: 'idToken required' }, { status: 400 });
     }
     if (!admin.apps.length) {
@@ -29,9 +37,9 @@ export async function POST(request: NextRequest) {
       email: decoded.email,
       name: decoded.name,
     });
-  } catch (error) {
+  } catch {
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Verification failed' },
+      { error: 'Verification failed' },
       { status: 401 }
     );
   }

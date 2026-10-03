@@ -10,9 +10,9 @@ import { signOut } from 'firebase/auth';
 import { routing, type Locale } from '@/i18n/routing';
 import { LogoMark } from '@/components/common/LogoMark';
 
-const localeOptions: Record<Locale, { flag: string; labelKey: 'languageEnglish' | 'languageJapanese' }> = {
-  en: { flag: '🇬🇧', labelKey: 'languageEnglish' },
-  ja: { flag: '🇯🇵', labelKey: 'languageJapanese' },
+const localeOptions: Record<Locale, { labelKey: 'languageEnglish' | 'languageJapanese' }> = {
+  en: { labelKey: 'languageEnglish' },
+  ja: { labelKey: 'languageJapanese' },
 };
 
 export default function Header() {
@@ -23,6 +23,7 @@ export default function Header() {
   const router = useRouter();
   const { user, loading } = useAuth();
   const [signInError, setSignInError] = useState<string | null>(null);
+  const [signOutError, setSignOutError] = useState<string | null>(null);
   const [signingIn, setSigningIn] = useState(false);
 
   const handleSignIn = async () => {
@@ -39,8 +40,13 @@ export default function Header() {
   };
 
   const handleSignOut = async () => {
-    const auth = await getFirebaseAuth();
-    await signOut(auth);
+    setSignOutError(null);
+    try {
+      const auth = await getFirebaseAuth();
+      await signOut(auth);
+    } catch (error: unknown) {
+      setSignOutError(getAuthErrorMessage(error));
+    }
   };
 
   const switchLocale = (nextLocale: Locale) => {
@@ -58,15 +64,15 @@ export default function Header() {
             <span>{t('appName')}</span>
           </Link>
           <nav className="hidden items-center gap-7 text-sm text-muted-foreground md:flex">
-            <a href="#features" className="transition-colors hover:text-foreground">
+            <Link href="/#features" className="transition-colors hover:text-foreground">
               {tl('navFeatures')}
-            </a>
-            <a href="#how-it-works" className="transition-colors hover:text-foreground">
+            </Link>
+            <Link href="/#how-it-works" className="transition-colors hover:text-foreground">
               {tl('navHowItWorks')}
-            </a>
-            <a href="#security" className="transition-colors hover:text-foreground">
+            </Link>
+            <Link href="/#security" className="transition-colors hover:text-foreground">
               {tl('navSecurity')}
-            </a>
+            </Link>
           </nav>
         </div>
         <nav className="flex items-center gap-3 text-sm">
@@ -77,17 +83,14 @@ export default function Header() {
           ) : null}
           <label className="relative flex border bg-background text-xs">
             <span className="sr-only">{t('languageSwitcher')}</span>
-            <span aria-hidden className="pointer-events-none absolute inset-y-0 left-2 flex items-center">
-              {localeOptions[selectedLocale].flag}
-            </span>
             <select
               value={selectedLocale}
               onChange={(event) => switchLocale(event.target.value as Locale)}
-              className="appearance-none bg-transparent py-1 pl-8 pr-7 text-foreground outline-none transition-colors hover:bg-muted"
+              className="appearance-none bg-transparent py-1 pl-2 pr-7 text-foreground outline-none transition-colors hover:bg-muted"
             >
               {routing.locales.map((loc) => (
                 <option key={loc} value={loc}>
-                  {localeOptions[loc].flag} {t(localeOptions[loc].labelKey)}
+                  {t(localeOptions[loc].labelKey)}
                 </option>
               ))}
             </select>
@@ -99,6 +102,7 @@ export default function Header() {
             (user ? (
               <div className="flex items-center gap-3">
                 <span className="hidden max-w-36 truncate text-muted-foreground lg:inline">{user.email}</span>
+                {signOutError ? <span role="alert" className="text-xs text-destructive">{signOutError}</span> : null}
                 <Button variant="outline" size="sm" onClick={handleSignOut}>
                   {t('signOut')}
                 </Button>

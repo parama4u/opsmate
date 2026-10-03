@@ -30,7 +30,12 @@ async function forward(req: NextRequest, ctx: RouteCtx, method: string) {
     init.body = await req.arrayBuffer();
   }
 
-  const upstream = await fetch(url, init);
+  let upstream: Response;
+  try {
+    upstream = await fetch(url, { ...init, signal: AbortSignal.timeout(30_000) });
+  } catch {
+    return NextResponse.json({ success: false, error: 'Upstream service unavailable' }, { status: 502 });
+  }
   const body = await upstream.arrayBuffer();
   const res = new NextResponse(body, { status: upstream.status });
   const ct = upstream.headers.get('content-type');

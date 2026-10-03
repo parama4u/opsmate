@@ -4,7 +4,7 @@ import { useRef, useEffect, useState, type ReactNode } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { useTranslations } from 'next-intl';
-import { cn } from '@/lib/utils';
+import { cn, safeExternalUrl } from '@/lib/utils';
 import { apiFetch } from '@/lib/api';
 
 interface ChatMessage {
@@ -31,12 +31,14 @@ export function ChatMessages({
   loading,
   onSuggest,
   onFeedback,
+  feedbackPending = false,
   onProposeAction,
 }: {
   messages: ChatMessage[];
   loading: boolean;
   onSuggest?: (question: string) => void;
-  onFeedback?: (messageId: string, kind: 'helpful' | 'not_helpful' | 'incorrect' | 'missing_source' | 'report_concern') => void;
+  onFeedback?: (messageId: string, kind: 'helpful' | 'not_helpful' | 'incorrect' | 'missing_source' | 'report_concern') => void | Promise<void>;
+  feedbackPending?: boolean;
   onProposeAction?: (question: string, message: ChatMessage) => void;
 }) {
   const t = useTranslations('chat');
@@ -64,7 +66,8 @@ export function ChatMessages({
   };
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const reducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    endRef.current?.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth' });
   }, [messages, loading]);
 
   if (messages.length === 0 && !loading) {
@@ -120,6 +123,9 @@ export function ChatMessages({
                     const sourceQuery = messages.slice(0, index).reverse().find((message) => message.role === 'user')?.content || '';
                     return m.sources.map((s, i) => (
                     <div key={i} className="mb-1 bg-background/50 px-2 py-1 text-xs text-muted-foreground">
+                      {(() => {
+                        const sourceUrl = safeExternalUrl(s.source_url);
+                        return <>
                       <span className="font-medium text-primary">{i + 1}. {s.title || s.source}</span>
                       {s.score ? <span className="float-right">{s.score.toFixed(2)}</span> : null}
                       <p className="mt-0.5 line-clamp-2">{highlightTerms(s.text, sourceQuery)}</p>
@@ -129,11 +135,13 @@ export function ChatMessages({
                         {[s.owner ? `${t('ownerLabel')}: ${s.owner}` : null, s.subject_matter_expert ? `${t('smeLabel')}: ${s.subject_matter_expert}` : null, s.reviewed_at ? `${t('reviewedLabel')}: ${s.reviewed_at}` : null, s.expires_at ? `${t('expiresLabel')}: ${s.expires_at}` : null, s.provenance ? `${t('provenanceLabel')}: ${s.provenance}` : null].filter(Boolean).join(' · ')}
                       </p> : null}
                       <div className="mt-1 flex gap-3">
-                        {s.source_url ? <a className="text-primary underline" href={s.source_url} target="_blank" rel="noreferrer" onClick={() => recordSourceClick(s.source)}>{t('openSource')}</a> : null}
+                        {sourceUrl ? <a className="text-primary underline" href={sourceUrl} target="_blank" rel="noreferrer" onClick={() => recordSourceClick(s.source)}>{t('openSource')}</a> : null}
                         <button type="button" className="text-primary underline" onClick={() => void openPreview(s.source)} disabled={previewLoading === s.source}>{previewLoading === s.source ? t('loadingSource') : t('previewSource')}</button>
                         <span>{s.status || t('sourceStatus')}</span>
                       </div>
                       {preview?.source === s.source ? <div className="mt-2 border-t pt-2 text-foreground"><p className="mb-1 text-[11px] font-medium text-primary">{t('sourcePreview')}</p><pre className="max-h-48 overflow-auto whitespace-pre-wrap font-sans text-xs">{preview.content}</pre></div> : null}
+                        </>;
+                      })()}
                     </div>
                     ));
                   })()}
@@ -143,11 +151,11 @@ export function ChatMessages({
               {m.role !== 'user' && (onFeedback || onProposeAction) ? (
                 <div className="mt-3 flex flex-wrap gap-2 border-t pt-2 text-xs text-muted-foreground">
                   {onFeedback ? <>
-                    <button type="button" className="underline hover:text-foreground" onClick={() => onFeedback(m.id, 'helpful')}>{t('helpful')}</button>
-                    <button type="button" className="underline hover:text-foreground" onClick={() => onFeedback(m.id, 'not_helpful')}>{t('notHelpful')}</button>
-                    <button type="button" className="underline hover:text-foreground" onClick={() => onFeedback(m.id, 'incorrect')}>{t('incorrect')}</button>
-                    <button type="button" className="underline hover:text-foreground" onClick={() => onFeedback(m.id, 'missing_source')}>{t('missingSource')}</button>
-                    <button type="button" className="underline hover:text-foreground" onClick={() => onFeedback(m.id, 'report_concern')}>{t('reportConcern')}</button>
+                    <button type="button" disabled={feedbackPending} className="underline hover:text-foreground disabled:opacity-50" onClick={() => void onFeedback(m.id, 'helpful')}>{t('helpful')}</button>
+                    <button type="button" disabled={feedbackPending} className="underline hover:text-foreground disabled:opacity-50" onClick={() => void onFeedback(m.id, 'not_helpful')}>{t('notHelpful')}</button>
+                    <button type="button" disabled={feedbackPending} className="underline hover:text-foreground disabled:opacity-50" onClick={() => void onFeedback(m.id, 'incorrect')}>{t('incorrect')}</button>
+                    <button type="button" disabled={feedbackPending} className="underline hover:text-foreground disabled:opacity-50" onClick={() => void onFeedback(m.id, 'missing_source')}>{t('missingSource')}</button>
+                    <button type="button" disabled={feedbackPending} className="underline hover:text-foreground disabled:opacity-50" onClick={() => void onFeedback(m.id, 'report_concern')}>{t('reportConcern')}</button>
                   </> : null}
                   {onProposeAction ? <button type="button" className="underline hover:text-foreground" onClick={() => onProposeAction(messages.slice(0, index).reverse().find((message) => message.role === 'user')?.content || '', m)}>{t('proposeAction')}</button> : null}
                 </div>

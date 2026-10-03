@@ -24,12 +24,14 @@ class BackupStore:
     def _read(self) -> list[dict]:
         try:
             value = json.loads(self.metadata_path.read_text(encoding="utf-8"))
-            return value if isinstance(value, list) else []
+            return [item for item in value if isinstance(item, dict)] if isinstance(value, list) else []
         except (OSError, json.JSONDecodeError):
             return []
 
     def _write(self, records: list[dict]) -> None:
-        self.metadata_path.write_text(json.dumps(records, ensure_ascii=False, indent=2), encoding="utf-8")
+        temp_path = self.metadata_path.with_suffix(".json.tmp")
+        temp_path.write_text(json.dumps(records, ensure_ascii=False, indent=2), encoding="utf-8")
+        temp_path.replace(self.metadata_path)
 
     def list(self) -> list[dict]:
         records = []

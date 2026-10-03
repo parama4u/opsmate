@@ -5,11 +5,12 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/navigation';
 import { useAuth } from '@/lib/auth/AuthProvider';
+import { getAuthErrorMessage, getFirebaseAuth, signInWithGooglePopup } from '@/lib/auth/SimpleAuthProvider';
 import { Button } from '@/components/ui/button';
-import { getAuthErrorMessage, signInWithGooglePopup } from '@/lib/auth/SimpleAuthProvider';
 import { cn } from '@/lib/utils';
 import { LogoMark } from '@/components/common/LogoMark';
 import { WorkspaceMenu, WorkspaceNavigationProvider } from '@/components/chat/workspaceNavigation';
+import { signOut } from 'firebase/auth';
 
 export default function DashboardShell({ children }: { children: ReactNode }) {
   const t = useTranslations('dashboard');
@@ -19,6 +20,7 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
   const [signInError, setSignInError] = useState<string | null>(null);
   const [signingIn, setSigningIn] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [signOutError, setSignOutError] = useState<string | null>(null);
 
   const nav = [
     { href: '/dashboard', key: 'dashboard' as const },
@@ -38,6 +40,15 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
       setSignInError(getAuthErrorMessage(error));
     } finally {
       setSigningIn(false);
+    }
+  };
+
+  const handleSignOut = async () => {
+    setSignOutError(null);
+    try {
+      await signOut(await getFirebaseAuth());
+    } catch {
+      setSignOutError(tc('signOutError'));
     }
   };
 
@@ -109,6 +120,10 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
                 {t(`nav.${item.key}`)}
               </Link>
             ))}
+            <button type="button" onClick={() => void handleSignOut()} className="block px-3 py-2 text-sm text-muted-foreground transition-colors hover:text-foreground">
+              {tc('signOut')}
+            </button>
+            {signOutError ? <p role="alert" className="px-3 py-2 text-xs text-destructive">{signOutError}</p> : null}
           </div>
         ) : null}
         <button

@@ -123,7 +123,7 @@ export default function HomePage() {
       <div className="relative -mx-5 overflow-hidden bg-secondary py-4 sm:-mx-0">
         <div className="landing-marquee flex min-w-max items-center gap-10 text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
           {[...proofSignals, ...proofSignals].map(({ icon: Icon, key }, index) => (
-            <span key={`${key}-${index}`} className="inline-flex items-center gap-3 whitespace-nowrap">
+            <span key={`${key}-${index}`} aria-hidden={index >= proofSignals.length} className="inline-flex items-center gap-3 whitespace-nowrap">
               <Icon className="h-4 w-4 text-primary" />
               {t(key)}
             </span>
@@ -456,6 +456,10 @@ function ScrollReveal({ children, className = '', delay = 0 }: ScrollRevealProps
   useEffect(() => {
     const node = ref.current;
     if (!node) return;
+    if (!('IntersectionObserver' in window)) {
+      setIsVisible(true);
+      return;
+    }
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) {
         setIsVisible(true);

@@ -5,6 +5,7 @@ import { FileText, MessageSquare, Plus, Trash2, Upload } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { safeExternalUrl } from '@/lib/utils';
 import { LogoMark } from '@/components/common/LogoMark';
 import { useWorkspaceNavigation, WorkspaceMenu } from '@/components/chat/workspaceNavigation';
 import { useCollections, useCreateSlackDigest, useCreateWorkflowProposal, usePeopleSearch, useRunSlackDigest, useSavedSearches, useSaveSearch, useSearch, useSlackDigests, useSlackStatus, useSlackSummary, useWorkflows } from '@/lib/query/hooks';
@@ -23,7 +24,7 @@ interface ChatShellProps {
   onNewChat: () => void;
   onDeleteChat: (id: string) => void;
   documents: Record<string, number>;
-  onUploadDocument: (file: File) => void;
+  onUploadDocument: (file: File) => void | Promise<void>;
   onDeleteDocument: (name: string) => void;
   canManageDocuments?: boolean;
   children: ReactNode;
@@ -45,6 +46,7 @@ export function ChatShell({
   const { tab } = useWorkspaceNavigation();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchStatus, setSearchStatus] = useState('');
   const [searchSourceSystem, setSearchSourceSystem] = useState('');
@@ -76,13 +78,19 @@ export function ChatShell({
   const createSlackDigest = useCreateSlackDigest();
   const runSlackDigest = useRunSlackDigest();
 
-  const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
-    onUploadDocument(file);
-    setUploading(false);
-    e.target.value = '';
+    setUploadError(null);
+    try {
+      await onUploadDocument(file);
+      e.target.value = '';
+    } catch {
+      setUploadError(t('uploadFailed'));
+    } finally {
+      setUploading(false);
+    }
   }, [onUploadDocument]);
 
   return (
@@ -106,7 +114,16 @@ export function ChatShell({
                 chats.map((c) => (
                   <div
                     key={c.id}
+                    role="button"
+                    tabIndex={0}
+                    aria-current={c.id === activeChatId ? 'page' : undefined}
                     onClick={() => onSelectChat(c.id)}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        onSelectChat(c.id);
+                      }
+                    }}
                     className={cn(
                       'group flex cursor-pointer items-center justify-between px-3 py-2 text-sm transition-colors',
                       c.id === activeChatId ? 'bg-accent text-foreground' : 'text-muted-foreground hover:bg-accent/60 hover:text-foreground'
@@ -117,6 +134,8 @@ export function ChatShell({
                       <span className="truncate">{c.title}</span>
                     </span>
                     <button
+                      type="button"
+                      aria-label={`${t('deleteChat')}: ${c.title}`}
                       onClick={(e) => { e.stopPropagation(); onDeleteChat(c.id); }}
                       className="opacity-0 transition-opacity group-hover:opacity-100"
                     >
@@ -135,6 +154,7 @@ export function ChatShell({
                     </label>
                   </div>
                 ) : null}
+                {uploadError ? <p role="alert" className="px-1 text-xs text-red-700">{uploadError}</p> : null}
                 {Object.keys(documents).length === 0 ? (
                   <p className="px-3 py-4 text-center text-xs text-muted-foreground">{t('noDocs')}</p>
                 ) : (
@@ -149,6 +169,8 @@ export function ChatShell({
                       </span>
                       {canManageDocuments ? (
                         <button
+                          type="button"
+                          aria-label={`${t('deleteDocument')}: ${name}`}
                           onClick={() => onDeleteDocument(name)}
                           className="opacity-0 transition-opacity group-hover:opacity-100"
                         >
@@ -190,7 +212,9 @@ export function ChatShell({
                     </article>
                   ))}
                   {search.isSuccess && (search.data?.results.length ?? 0) === 0 ? <p className="py-3 text-center text-xs text-muted-foreground">{t('noSearchResults')}</p> : null}
+                  {search.isError ? <p role="alert" className="py-2 text-xs text-red-700">{t('actionFailed')}</p> : null}
                   {(savedSearches.data ?? []).length > 0 ? <p className="pt-2 text-[11px] text-muted-foreground">{t('savedSearches')}: {(savedSearches.data ?? []).map((saved) => saved.name).join(', ')}</p> : null}
+                  {saveSearch.isError ? <p role="alert" className="py-2 text-xs text-red-700">{t('actionFailed')}</p> : null}
                 </div>
               </form>
             ) : tab === 'people' ? (
@@ -203,6 +227,7 @@ export function ChatShell({
                 <div className="space-y-2 pt-2">
                   {(people.data ?? []).map((person) => <article key={`${person.role}-${person.name}`} className="border p-2 text-xs"><p className="font-medium">{person.name}</p><p className="text-muted-foreground">{person.role}{person.department ? ` · ${person.department}` : ''}</p><p className="mt-1 text-muted-foreground">{person.sources.join(', ')}</p></article>)}
                   {people.isSuccess && (people.data?.length ?? 0) === 0 ? <p className="py-3 text-center text-xs text-muted-foreground">{t('noPeople')}</p> : null}
+                  {people.isError ? <p role="alert" className="py-2 text-xs text-red-700">{t('actionFailed')}</p> : null}
                 </div>
               </form>
             ) : tab === 'workflows' ? (
@@ -218,6 +243,7 @@ export function ChatShell({
                     <p className="text-xs text-muted-foreground">{workflow.description}</p>
                     {workflow.required_inputs.map((input) => <input key={input} required value={workflowInputs[input] || ''} onChange={(event) => setWorkflowInputs((current) => ({ ...current, [input]: event.target.value }))} placeholder={input} className="w-full border bg-background px-2 py-2 text-xs" />)}
                     <button type="submit" disabled={createWorkflow.isPending} className="w-full border px-2 py-2 text-xs disabled:opacity-50">{t('createWorkflowProposal')}</button>
+                    {createWorkflow.isError ? <p role="alert" className="text-xs text-red-700">{t('actionFailed')}</p> : null}
                   </form>;
                 })() : null}
               </div>
@@ -248,8 +274,9 @@ export function ChatShell({
                   <option value="ja">{t('languageJapanese')}</option>
                 </select>
                 <button type="submit" disabled={!slackStatus.data?.ready || slackSummary.isPending || createSlackDigest.isPending} className="w-full border px-2 py-2 text-xs disabled:opacity-50">{slackSchedule === 'on_demand' ? t('createRecap') : t('saveDigest')}</button>
-                {slackSummary.data ? <article className="border p-2 text-xs"><p className="whitespace-pre-wrap">{slackSummary.data.summary}</p>{slackSummary.data.source_url ? <a href={slackSummary.data.source_url} target="_blank" rel="noreferrer" className="mt-2 inline-block text-primary underline">{t('openSlackSource')}</a> : null}</article> : null}
+                {slackSummary.data ? <article className="border p-2 text-xs"><p className="whitespace-pre-wrap">{slackSummary.data.summary}</p>{safeExternalUrl(slackSummary.data.source_url) ? <a href={safeExternalUrl(slackSummary.data.source_url) ?? undefined} target="_blank" rel="noreferrer" className="mt-2 inline-block text-primary underline">{t('openSlackSource')}</a> : null}</article> : null}
                 {slackSummary.isError ? <p className="text-xs text-red-500">{t('recapUnavailable')}</p> : null}
+                {createSlackDigest.isError || runSlackDigest.isError ? <p role="alert" className="text-xs text-red-700">{t('actionFailed')}</p> : null}
                 {(slackDigests.data ?? []).length > 0 ? <div className="space-y-2 pt-2"><p className="text-xs font-medium">{t('savedDigests')}</p>{(slackDigests.data ?? []).map((digest) => <article key={digest.id} className="border p-2 text-xs"><p>{digest.channel_ids.join(', ')} · {digest.schedule}</p><button type="button" className="mt-1 text-primary underline" disabled={runSlackDigest.isPending} onClick={() => runSlackDigest.mutate(digest.id)}>{t('runDigest')}</button></article>)}</div> : null}
               </form>
             )}

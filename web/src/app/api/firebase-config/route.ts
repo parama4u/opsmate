@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   const firebaseConfig = {
     apiKey: process.env.FIREBASE_API_KEY,
@@ -20,5 +22,7 @@ export async function GET() {
     return NextResponse.json({ error: 'Firebase configuration incomplete' }, { status: 500 });
   }
 
-  return NextResponse.json(firebaseConfig);
+  return NextResponse.json(firebaseConfig, {
+    headers: { 'Cache-Control': 'no-store' },
+  });
 }
